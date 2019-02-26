@@ -45,6 +45,7 @@ type Type string
 
 // Error is an error in the projector, with the namespace.
 type Error struct {
+	Event eh.Event
 	// Err is the error.
 	Err error
 	// BaseErr is an optional underlying error, for example from the DB driver.
@@ -90,6 +91,7 @@ func (h *EventHandler) HandleEvent(ctx context.Context, event eh.Event) error {
 		if h.factoryFn == nil {
 			return Error{
 				Err:       ErrModelNotSet,
+				Event:     event,
 				Namespace: eh.NamespaceFromContext(ctx),
 			}
 		}
@@ -97,6 +99,7 @@ func (h *EventHandler) HandleEvent(ctx context.Context, event eh.Event) error {
 	} else if err != nil {
 		return Error{
 			Err:       err,
+			Event:     event,
 			Namespace: eh.NamespaceFromContext(ctx),
 		}
 	}
@@ -105,6 +108,7 @@ func (h *EventHandler) HandleEvent(ctx context.Context, event eh.Event) error {
 	if entity, ok := entity.(eh.Versionable); ok {
 		if entity.AggregateVersion()+1 != event.Version() {
 			return Error{
+				Event:     event,
 				Err:       eh.ErrIncorrectEntityVersion,
 				Namespace: eh.NamespaceFromContext(ctx),
 			}
@@ -116,6 +120,7 @@ func (h *EventHandler) HandleEvent(ctx context.Context, event eh.Event) error {
 	if err != nil {
 		return Error{
 			Err:       err,
+			Event:     event,
 			Namespace: eh.NamespaceFromContext(ctx),
 		}
 	}
@@ -125,6 +130,7 @@ func (h *EventHandler) HandleEvent(ctx context.Context, event eh.Event) error {
 		if newEntity.AggregateVersion() != event.Version() {
 			return Error{
 				Err:       eh.ErrIncorrectEntityVersion,
+				Event:     event,
 				Namespace: eh.NamespaceFromContext(ctx),
 			}
 		}
@@ -135,6 +141,7 @@ func (h *EventHandler) HandleEvent(ctx context.Context, event eh.Event) error {
 		if err := h.repo.Save(ctx, newEntity); err != nil {
 			return Error{
 				Err:       err,
+				Event:     event,
 				Namespace: eh.NamespaceFromContext(ctx),
 			}
 		}
@@ -142,6 +149,7 @@ func (h *EventHandler) HandleEvent(ctx context.Context, event eh.Event) error {
 		if err := h.repo.Remove(ctx, event.AggregateID()); err != nil {
 			return Error{
 				Err:       err,
+				Event:     event,
 				Namespace: eh.NamespaceFromContext(ctx),
 			}
 		}
