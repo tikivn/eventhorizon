@@ -11,12 +11,6 @@ import (
 const pkgName = "github.com/tikivn/eventhorizon"
 
 var (
-	AggregateTypeKey = oc.MustKey("eh_aggregate_type")
-	HandlerTypeKey   = oc.MustKey("eh_handler_type")
-	EventTypeKey     = oc.MustKey("eh_event_type")
-)
-
-var (
 	latencyMeasure = oc.LatencyMeasure(pkgName)
 	messageMeasure = oc.MessageMeasure(pkgName)
 
@@ -27,7 +21,7 @@ var (
 		Name:        pkgName + "/message",
 		Measure:     messageMeasure,
 		Description: "Distribution of method latency, by provider and method.",
-		TagKeys:     []tag.Key{oc.ProviderKey, oc.MethodKey},
+		TagKeys:     []tag.Key{oc.ProviderKey, oc.MethodKey, oc.AggregateTypeKey, oc.HandlerTypeKey, oc.EventTypeKey},
 		Aggregation: ocgrpc.DefaultMessageCountDistribution,
 	})
 )

@@ -26,8 +26,8 @@ func NewEventBus(bus eh.EventBus) *TraceEventBus {
 func (b *TraceEventBus) PublishEvent(ctx context.Context, event eh.Event) (err error) {
 	ctx = b.tracer.Start(ctx, "EventBus.PublishEvent")
 	ctx, err = tag.New(ctx,
-		tag.Upsert(AggregateTypeKey, (string)(event.AggregateType())),
-		tag.Upsert(EventTypeKey, (string)(event.EventType())),
+		tag.Upsert(oc.AggregateTypeKey, (string)(event.AggregateType())),
+		tag.Upsert(oc.EventTypeKey, (string)(event.EventType())),
 	)
 	if err != nil {
 		panic(err)

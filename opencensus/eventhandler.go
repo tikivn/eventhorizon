@@ -25,9 +25,9 @@ func NewEventHandler(handler eh.EventHandler) *EventHandler {
 func (h *EventHandler) HandleEvent(ctx context.Context, event eh.Event) (err error) {
 	ctx = h.tracer.Start(ctx, "EventHandler.HandleEvent")
 	ctx, err = tag.New(ctx,
-		tag.Upsert(AggregateTypeKey, (string)(event.AggregateType())),
-		tag.Upsert(HandlerTypeKey, (string)(h.EventHandler.HandlerType())),
-		tag.Upsert(EventTypeKey, (string)(event.EventType())),
+		tag.Upsert(oc.AggregateTypeKey, (string)(event.AggregateType())),
+		tag.Upsert(oc.HandlerTypeKey, (string)(h.EventHandler.HandlerType())),
+		tag.Upsert(oc.EventTypeKey, (string)(event.EventType())),
 	)
 	if err != nil {
 		panic(err)

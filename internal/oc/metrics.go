@@ -27,6 +27,10 @@ var (
 	MethodKey   = MustKey("eh_method")
 	StatusKey   = MustKey("eh_status")
 	ProviderKey = MustKey("eh_provider")
+
+	AggregateTypeKey = MustKey("eh_aggregate_type")
+	HandlerTypeKey   = MustKey("eh_handler_type")
+	EventTypeKey     = MustKey("eh_event_type")
 )
 
 func MustKey(name string) tag.Key {
@@ -44,14 +48,14 @@ func Views(pkg string, latencyMeasure *stats.Float64Measure) []*view.View {
 			Name:        pkg + "/completed_calls",
 			Measure:     latencyMeasure,
 			Description: "Count of method calls by provider, method and status.",
-			TagKeys:     []tag.Key{ProviderKey, MethodKey, StatusKey},
+			TagKeys:     []tag.Key{ProviderKey, MethodKey, AggregateTypeKey, HandlerTypeKey, EventTypeKey, StatusKey},
 			Aggregation: view.Count(),
 		},
 		{
 			Name:        pkg + "/latency",
 			Measure:     latencyMeasure,
 			Description: "Distribution of method latency, by provider and method.",
-			TagKeys:     []tag.Key{ProviderKey, MethodKey},
+			TagKeys:     []tag.Key{ProviderKey, MethodKey, AggregateTypeKey, HandlerTypeKey, EventTypeKey},
 			Aggregation: ocgrpc.DefaultMillisecondsDistribution,
 		},
 	}
