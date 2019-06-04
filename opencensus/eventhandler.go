@@ -2,8 +2,8 @@ package opencensus
 
 import (
 	"context"
-	"fmt"
 
+	"go.opencensus.io/tag"
 	"go.opencensus.io/trace"
 
 	eh "github.com/looplab/eventhorizon"
@@ -11,21 +11,27 @@ import (
 )
 
 type EventHandler struct {
-	tracer      *oc.Tracer
-	handleEvent string
+	tracer *oc.Tracer
 	eh.EventHandler
 }
 
 func NewEventHandler(handler eh.EventHandler) *EventHandler {
 	return &EventHandler{
 		tracer:       newTracer(handler),
-		handleEvent:  fmt.Sprintf("EventHandler(%s).HandleEvent", handler.HandlerType()),
 		EventHandler: handler,
 	}
 }
 
 func (h *EventHandler) HandleEvent(ctx context.Context, event eh.Event) (err error) {
-	ctx = h.tracer.Start(ctx, h.handleEvent)
+	ctx = h.tracer.Start(ctx, "EventHandler.HandleEvent")
+	ctx, err = tag.New(ctx,
+		tag.Upsert(AggregateTypeKey, (string)(event.AggregateType())),
+		tag.Upsert(HandlerTypeKey, (string)(h.EventHandler.HandlerType())),
+		tag.Upsert(EventTypeKey, (string)(event.EventType())),
+	)
+	if err != nil {
+		panic(err)
+	}
 	span := trace.FromContext(ctx)
 	defer func() {
 		span.AddAttributes(

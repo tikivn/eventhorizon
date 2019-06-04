@@ -11,6 +11,12 @@ import (
 const pkgName = "github.com/tikivn/eventhorizon"
 
 var (
+	AggregateTypeKey = oc.MustKey("eh_aggregate_type")
+	HandlerTypeKey   = oc.MustKey("eh_handler_type")
+	EventTypeKey     = oc.MustKey("eh_event_type")
+)
+
+var (
 	latencyMeasure = oc.LatencyMeasure(pkgName)
 	messageMeasure = oc.MessageMeasure(pkgName)
 

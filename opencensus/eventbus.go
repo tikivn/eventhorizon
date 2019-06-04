@@ -2,8 +2,8 @@ package opencensus
 
 import (
 	"context"
-	"fmt"
 
+	"go.opencensus.io/tag"
 	"go.opencensus.io/trace"
 
 	eh "github.com/looplab/eventhorizon"
@@ -24,8 +24,14 @@ func NewEventBus(bus eh.EventBus) *TraceEventBus {
 
 // PublishEvent publishes the event on the bus.
 func (b *TraceEventBus) PublishEvent(ctx context.Context, event eh.Event) (err error) {
-	ctx = b.tracer.Start(ctx,
-		fmt.Sprintf("EventBus.PublishEvent(%s)", event.EventType()))
+	ctx = b.tracer.Start(ctx, "EventBus.PublishEvent")
+	ctx, err = tag.New(ctx,
+		tag.Upsert(AggregateTypeKey, (string)(event.AggregateType())),
+		tag.Upsert(EventTypeKey, (string)(event.EventType())),
+	)
+	if err != nil {
+		panic(err)
+	}
 	span := trace.FromContext(ctx)
 	span.AddAttributes(
 		trace.StringAttribute("aggregateID", event.AggregateID().String()),

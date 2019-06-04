@@ -24,12 +24,12 @@ func MessageMeasure(pkg string) *stats.Int64Measure {
 }
 
 var (
-	MethodKey   = mustKey("eh_method")
-	StatusKey   = mustKey("eh_status")
-	ProviderKey = mustKey("eh_provider")
+	MethodKey   = MustKey("eh_method")
+	StatusKey   = MustKey("eh_status")
+	ProviderKey = MustKey("eh_provider")
 )
 
-func mustKey(name string) tag.Key {
+func MustKey(name string) tag.Key {
 	k, err := tag.NewKey(name)
 	if err != nil {
 		panic(fmt.Sprintf("tag.NewKey(%q): %v", name, err))
