@@ -29,7 +29,7 @@ func (s *TraceStore) Load(
 ) (events []eh.Event, err error) {
 	ctx = s.tracer.Start(ctx, "EventStore.Load")
 	ctx, err = tag.New(ctx,
-		tag.Upsert(AggregateTypeKey, (string)(aggregateType)),
+		tag.Upsert(oc.AggregateTypeKey, (string)(aggregateType)),
 	)
 	if err != nil {
 		panic(err)
@@ -61,7 +61,7 @@ func (s *TraceStore) Save(
 	lenEvents := (int64)(len(events))
 	if lenEvents > 0 {
 		ctx, err = tag.New(ctx,
-			tag.Upsert(AggregateTypeKey, (string)(events[0].AggregateType())),
+			tag.Upsert(oc.AggregateTypeKey, (string)(events[0].AggregateType())),
 		)
 	}
 	if err != nil {
