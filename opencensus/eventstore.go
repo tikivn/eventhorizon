@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
+	"go.opencensus.io/tag"
 	"go.opencensus.io/trace"
 
 	eh "github.com/looplab/eventhorizon"
@@ -27,6 +28,12 @@ func (s *TraceStore) Load(
 	ctx context.Context, id uuid.UUID, aggregateType eh.AggregateType,
 ) (events []eh.Event, err error) {
 	ctx = s.tracer.Start(ctx, "EventStore.Load")
+	ctx, err = tag.New(ctx,
+		tag.Upsert(AggregateTypeKey, (string)(aggregateType)),
+	)
+	if err != nil {
+		panic(err)
+	}
 	span := trace.FromContext(ctx)
 	span.AddAttributes(
 		trace.StringAttribute("aggregateID", id.String()),
@@ -51,8 +58,16 @@ func (s *TraceStore) Save(
 	ctx context.Context, events []eh.Event, originalVersion int,
 ) (err error) {
 	ctx = s.tracer.Start(ctx, "EventStore.Save")
-	span := trace.FromContext(ctx)
 	lenEvents := (int64)(len(events))
+	if lenEvents > 0 {
+		ctx, err = tag.New(ctx,
+			tag.Upsert(AggregateTypeKey, (string)(events[0].AggregateType())),
+		)
+	}
+	if err != nil {
+		panic(err)
+	}
+	span := trace.FromContext(ctx)
 	span.AddAttributes(
 		trace.Int64Attribute("events", lenEvents),
 		trace.Int64Attribute("originalVersion", (int64)(originalVersion)),
