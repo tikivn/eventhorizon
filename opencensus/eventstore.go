@@ -12,8 +12,6 @@ import (
 	"github.com/looplab/eventhorizon/internal/oc"
 )
 
-var ErrNotImplemented = errors.New("Not implemented")
-
 type TraceStore struct {
 	tracer *oc.Tracer
 	store  eh.EventStore
@@ -85,47 +83,6 @@ func (s *TraceStore) Save(
 	return s.store.Save(ctx, events, originalVersion)
 }
 
-func (s *TraceStore) LoadFromVersion(
-	ctx context.Context,
-	id uuid.UUID,
-	aggregateType eh.AggregateType,
-	version int,
-) (events []eh.Event, err error) {
-	type es interface {
-		LoadFromVersion(ctx context.Context, id uuid.UUID, aggregateType eh.AggregateType, version int) ([]eh.Event, error)
-	}
-
-	if newES, ok := s.store.(es); ok {
-		ctx = s.tracer.Start(ctx, "EventStore.LoadFromVersion")
-		ctx, err = tag.New(ctx,
-			tag.Upsert(oc.AggregateTypeKey, (string)(aggregateType)),
-		)
-		if err != nil {
-			panic(err)
-		}
-		span := trace.FromContext(ctx)
-		span.AddAttributes(
-			trace.StringAttribute("aggregateID", id.String()),
-			trace.StringAttribute("aggregateType", (string)(aggregateType)),
-		)
-		defer func() {
-			lenEvents := (int64)(len(events))
-			span.AddAttributes(
-				trace.Int64Attribute("events", lenEvents),
-			)
-			if err == nil {
-				s.tracer.End(ctx, err, messageMeasure.M(lenEvents))
-			} else {
-				s.tracer.End(ctx, err)
-			}
-		}()
-
-		return newES.LoadFromVersion(ctx, id, aggregateType, version)
-	}
-
-	return nil, ErrNotImplemented
-}
-
 func (s *TraceStore) LoadEvent(ctx context.Context, eventIDs []uuid.UUID) ([]eh.Event, error) {
 	type es interface {
 		LoadEvent(ctx context.Context, eventIDs []uuid.UUID) ([]eh.Event, error)
@@ -135,5 +92,5 @@ func (s *TraceStore) LoadEvent(ctx context.Context, eventIDs []uuid.UUID) ([]eh.
 		return newES.LoadEvent(ctx, eventIDs)
 	}
 
-	return nil, ErrNotImplemented
+	return nil, errors.New("Nil Interface")
 }
