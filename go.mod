@@ -1,4 +1,4 @@
-module github.com/looplab/eventhorizon
+module github.com/tikivn/eventhorizon
 
 require (
 	cloud.google.com/go v0.39.0
