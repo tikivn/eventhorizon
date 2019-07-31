@@ -29,7 +29,7 @@ import (
 // should pass. It should manually be called from a test case in each
 // implementation:
 //
-//   func TestRepo(t *testing.T) {
+//   func Test_Repo(t *testing.T) {
 //       ctx := context.Background() // Or other when testing namespaces.
 //       store := NewRepo()
 //       repo.AcceptanceTest(t, ctx, store)

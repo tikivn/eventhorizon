@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package trace
+package trace_test
 
 import (
 	"context"
@@ -23,12 +23,13 @@ import (
 	eh "github.com/looplab/eventhorizon"
 	"github.com/looplab/eventhorizon/eventstore"
 	"github.com/looplab/eventhorizon/eventstore/memory"
+	"github.com/looplab/eventhorizon/eventstore/trace"
 	"github.com/looplab/eventhorizon/mocks"
 )
 
-func TestEventStore(t *testing.T) {
+func Test_EventStore(t *testing.T) {
 	baseStore := memory.NewEventStore()
-	store := NewEventStore(baseStore)
+	store := trace.NewEventStore(baseStore)
 	if store == nil {
 		t.Fatal("there should be a store")
 	}

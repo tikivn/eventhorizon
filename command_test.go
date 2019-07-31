@@ -12,24 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package eventhorizon
+package eventhorizon_test
 
 import (
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
+	eh "github.com/looplab/eventhorizon"
 )
 
-func TestCreateCommand(t *testing.T) {
-	cmd, err := CreateCommand(TestCommandRegisterType)
-	if err != ErrCommandNotRegistered {
+func Test_CreateCommand(t *testing.T) {
+	cmd, err := eh.CreateCommand(TestCommandRegisterType)
+	if err != eh.ErrCommandNotRegistered {
 		t.Error("there should be a command not registered error:", err)
 	}
 
-	RegisterCommand(func() Command { return &TestCommandRegister{} })
+	eh.RegisterCommand(func() eh.Command { return &TestCommandRegister{} })
 
-	cmd, err = CreateCommand(TestCommandRegisterType)
+	cmd, err = eh.CreateCommand(TestCommandRegisterType)
 	if err != nil {
 		t.Error("there should be no error:", err)
 	}
@@ -38,129 +39,129 @@ func TestCreateCommand(t *testing.T) {
 	}
 }
 
-func TestRegisterCommandEmptyName(t *testing.T) {
+func Test_RegisterCommandEmptyName(t *testing.T) {
 	defer func() {
 		if r := recover(); r == nil || r != "eventhorizon: attempt to register empty command type" {
 			t.Error("there should have been a panic:", r)
 		}
 	}()
-	RegisterCommand(func() Command { return &TestCommandRegisterEmpty{} })
+	eh.RegisterCommand(func() eh.Command { return &TestCommandRegisterEmpty{} })
 }
 
-func TestRegisterCommandNil(t *testing.T) {
+func Test_RegisterCommandNil(t *testing.T) {
 	defer func() {
 		if r := recover(); r == nil || r != "eventhorizon: created command is nil" {
 			t.Error("there should have been a panic:", r)
 		}
 	}()
-	RegisterCommand(func() Command { return nil })
+	eh.RegisterCommand(func() eh.Command { return nil })
 }
 
-func TestRegisterCommandTwice(t *testing.T) {
+func Test_RegisterCommandTwice(t *testing.T) {
 	defer func() {
 		if r := recover(); r == nil || r != "eventhorizon: registering duplicate types for \"TestCommandRegisterTwice\"" {
 			t.Error("there should have been a panic:", r)
 		}
 	}()
-	RegisterCommand(func() Command { return &TestCommandRegisterTwice{} })
-	RegisterCommand(func() Command { return &TestCommandRegisterTwice{} })
+	eh.RegisterCommand(func() eh.Command { return &TestCommandRegisterTwice{} })
+	eh.RegisterCommand(func() eh.Command { return &TestCommandRegisterTwice{} })
 }
 
-func TestUnregisterCommandEmptyName(t *testing.T) {
+func Test_UnregisterCommandEmptyName(t *testing.T) {
 	defer func() {
 		if r := recover(); r == nil || r != "eventhorizon: attempt to unregister empty command type" {
 			t.Error("there should have been a panic:", r)
 		}
 	}()
-	UnregisterCommand(TestCommandUnregisterEmptyType)
+	eh.UnregisterCommand(TestCommandUnregisterEmptyType)
 }
 
-func TestUnregisterCommandTwice(t *testing.T) {
+func Test_UnregisterCommandTwice(t *testing.T) {
 	defer func() {
 		if r := recover(); r == nil || r != "eventhorizon: unregister of non-registered type \"TestCommandUnregisterTwice\"" {
 			t.Error("there should have been a panic:", r)
 		}
 	}()
-	RegisterCommand(func() Command { return &TestCommandUnregisterTwice{} })
-	UnregisterCommand(TestCommandUnregisterTwiceType)
-	UnregisterCommand(TestCommandUnregisterTwiceType)
+	eh.RegisterCommand(func() eh.Command { return &TestCommandUnregisterTwice{} })
+	eh.UnregisterCommand(TestCommandUnregisterTwiceType)
+	eh.UnregisterCommand(TestCommandUnregisterTwiceType)
 }
 
-func TestCheckCommand(t *testing.T) {
+func Test_CheckCommand(t *testing.T) {
 	// Check all fields.
-	err := CheckCommand(&TestCommandFields{uuid.New().String(), "command1"})
+	err := eh.CheckCommand(&TestCommandFields{uuid.New().String(), "command1"})
 	if err != nil {
 		t.Error("there should be no error:", err)
 	}
 
 	// Missing required string value.
-	err = CheckCommand(&TestCommandStringValue{TestID: uuid.New().String()})
+	err = eh.CheckCommand(&TestCommandStringValue{TestID: uuid.New().String()})
 	if err == nil || err.Error() != "missing field: Content" {
 		t.Error("there should be a missing field error:", err)
 	}
 
 	// Missing required int value.
-	err = CheckCommand(&TestCommandIntValue{TestID: uuid.New().String()})
+	err = eh.CheckCommand(&TestCommandIntValue{TestID: uuid.New().String()})
 	if err != nil {
 		t.Error("there should be no error:", err)
 	}
 
 	// Missing required float value.
-	err = CheckCommand(&TestCommandFloatValue{TestID: uuid.New().String()})
+	err = eh.CheckCommand(&TestCommandFloatValue{TestID: uuid.New().String()})
 	if err != nil {
 		t.Error("there should be no error:", err)
 	}
 
 	// Missing required bool value.
-	err = CheckCommand(&TestCommandBoolValue{TestID: uuid.New().String()})
+	err = eh.CheckCommand(&TestCommandBoolValue{TestID: uuid.New().String()})
 	if err != nil {
 		t.Error("there should be no error:", err)
 	}
 
 	// Missing required slice.
-	err = CheckCommand(&TestCommandSlice{TestID: uuid.New().String()})
+	err = eh.CheckCommand(&TestCommandSlice{TestID: uuid.New().String()})
 	if err == nil || err.Error() != "missing field: Slice" {
 		t.Error("there should be a missing field error:", err)
 	}
 
 	// Missing required map.
-	err = CheckCommand(&TestCommandMap{TestID: uuid.New().String()})
+	err = eh.CheckCommand(&TestCommandMap{TestID: uuid.New().String()})
 	if err == nil || err.Error() != "missing field: Map" {
 		t.Error("there should be a missing field error:", err)
 	}
 
 	// Missing required struct.
-	err = CheckCommand(&TestCommandStruct{TestID: uuid.New().String()})
+	err = eh.CheckCommand(&TestCommandStruct{TestID: uuid.New().String()})
 	if err == nil || err.Error() != "missing field: Struct" {
 		t.Error("there should be a missing field error:", err)
 	}
 
 	// Missing required time.
-	err = CheckCommand(&TestCommandTime{TestID: uuid.New().String()})
+	err = eh.CheckCommand(&TestCommandTime{TestID: uuid.New().String()})
 	if err == nil || err.Error() != "missing field: Time" {
 		t.Error("there should be a missing field error:", err)
 	}
 
 	// Missing optional field.
-	err = CheckCommand(&TestCommandOptional{TestID: uuid.New().String()})
+	err = eh.CheckCommand(&TestCommandOptional{TestID: uuid.New().String()})
 	if err != nil {
 		t.Error("there should be no error:", err)
 	}
 
 	// Missing private field.
-	err = CheckCommand(&TestCommandPrivate{TestID: uuid.New().String()})
+	err = eh.CheckCommand(&TestCommandPrivate{TestID: uuid.New().String()})
 	if err != nil {
 		t.Error("there should be no error:", err)
 	}
 
 	// Check all array fields.
-	err = CheckCommand(&TestCommandArray{uuid.New().String(), [1]string{"string"}, [1]int{0}, [1]struct{ Test string }{struct{ Test string }{"struct"}}})
+	err = eh.CheckCommand(&TestCommandArray{uuid.New().String(), [1]string{"string"}, [1]int{0}, [1]struct{ Test string }{struct{ Test string }{"struct"}}})
 	if err != nil {
 		t.Error("there should be no error:", err)
 	}
 
 	// Empty array field.
-	err = CheckCommand(&TestCommandArray{uuid.New().String(), [1]string{""}, [1]int{0}, [1]struct{ Test string }{struct{ Test string }{"struct"}}})
+	err = eh.CheckCommand(&TestCommandArray{uuid.New().String(), [1]string{""}, [1]int{0}, [1]struct{ Test string }{struct{ Test string }{"struct"}}})
 	if err == nil || err.Error() != "missing field: StringArray" {
 		t.Error("there should be a missing field error:", err)
 	}
@@ -169,186 +170,188 @@ func TestCheckCommand(t *testing.T) {
 // Mocks for Register/Unregister.
 
 const (
-	TestCommandRegisterType        CommandType = "TestCommandRegister"
-	TestCommandRegisterEmptyType   CommandType = ""
-	TestCommandRegisterTwiceType   CommandType = "TestCommandRegisterTwice"
-	TestCommandUnregisterEmptyType CommandType = ""
-	TestCommandUnregisterTwiceType CommandType = "TestCommandUnregisterTwice"
+	TestCommandRegisterType        eh.CommandType = "TestCommandRegister"
+	TestCommandRegisterEmptyType   eh.CommandType = ""
+	TestCommandRegisterTwiceType   eh.CommandType = "TestCommandRegisterTwice"
+	TestCommandUnregisterEmptyType eh.CommandType = ""
+	TestCommandUnregisterTwiceType eh.CommandType = "TestCommandUnregisterTwice"
 
-	TestAggregateType AggregateType = "TestAggregate"
+	TestAggregateType eh.AggregateType = "TestAggregate"
 )
 
 type TestCommandRegister struct{}
 
-var _ = Command(TestCommandRegister{})
+var _ = eh.Command(TestCommandRegister{})
 
-func (a TestCommandRegister) AggregateID() ID              { return NilID }
-func (a TestCommandRegister) AggregateType() AggregateType { return TestAggregateType }
-func (a TestCommandRegister) CommandType() CommandType     { return TestCommandRegisterType }
+func (a TestCommandRegister) AggregateID() eh.ID              { return eh.NilID }
+func (a TestCommandRegister) AggregateType() eh.AggregateType { return TestAggregateType }
+func (a TestCommandRegister) CommandType() eh.CommandType     { return TestCommandRegisterType }
 
 type TestCommandRegisterEmpty struct{}
 
-var _ = Command(TestCommandRegisterEmpty{})
+var _ = eh.Command(TestCommandRegisterEmpty{})
 
-func (a TestCommandRegisterEmpty) AggregateID() ID              { return NilID }
-func (a TestCommandRegisterEmpty) AggregateType() AggregateType { return TestAggregateType }
-func (a TestCommandRegisterEmpty) CommandType() CommandType     { return TestCommandRegisterEmptyType }
+func (a TestCommandRegisterEmpty) AggregateID() eh.ID              { return eh.NilID }
+func (a TestCommandRegisterEmpty) AggregateType() eh.AggregateType { return TestAggregateType }
+func (a TestCommandRegisterEmpty) CommandType() eh.CommandType     { return TestCommandRegisterEmptyType }
 
 type TestCommandRegisterTwice struct{}
 
-var _ = Command(TestCommandRegisterTwice{})
+var _ = eh.Command(TestCommandRegisterTwice{})
 
-func (a TestCommandRegisterTwice) AggregateID() ID              { return NilID }
-func (a TestCommandRegisterTwice) AggregateType() AggregateType { return TestAggregateType }
-func (a TestCommandRegisterTwice) CommandType() CommandType     { return TestCommandRegisterTwiceType }
+func (a TestCommandRegisterTwice) AggregateID() eh.ID              { return eh.NilID }
+func (a TestCommandRegisterTwice) AggregateType() eh.AggregateType { return TestAggregateType }
+func (a TestCommandRegisterTwice) CommandType() eh.CommandType     { return TestCommandRegisterTwiceType }
 
 type TestCommandUnregisterTwice struct{}
 
-var _ = Command(TestCommandUnregisterTwice{})
+var _ = eh.Command(TestCommandUnregisterTwice{})
 
-func (a TestCommandUnregisterTwice) AggregateID() ID              { return NilID }
-func (a TestCommandUnregisterTwice) AggregateType() AggregateType { return TestAggregateType }
-func (a TestCommandUnregisterTwice) CommandType() CommandType     { return TestCommandUnregisterTwiceType }
+func (a TestCommandUnregisterTwice) AggregateID() eh.ID              { return eh.NilID }
+func (a TestCommandUnregisterTwice) AggregateType() eh.AggregateType { return TestAggregateType }
+func (a TestCommandUnregisterTwice) CommandType() eh.CommandType {
+	return TestCommandUnregisterTwiceType
+}
 
 // Mocks for CheckCommand.
 
 type TestCommandFields struct {
-	TestID  ID
+	TestID  eh.ID
 	Content string
 }
 
-var _ = Command(TestCommandFields{})
+var _ = eh.Command(TestCommandFields{})
 
-func (t TestCommandFields) AggregateID() ID              { return t.TestID }
-func (t TestCommandFields) AggregateType() AggregateType { return TestAggregateType }
-func (t TestCommandFields) CommandType() CommandType {
-	return CommandType("TestCommandFields")
+func (t TestCommandFields) AggregateID() eh.ID              { return t.TestID }
+func (t TestCommandFields) AggregateType() eh.AggregateType { return TestAggregateType }
+func (t TestCommandFields) CommandType() eh.CommandType {
+	return eh.CommandType("TestCommandFields")
 }
 
 type TestCommandStringValue struct {
-	TestID  ID
+	TestID  eh.ID
 	Content string
 }
 
-var _ = Command(TestCommandStringValue{})
+var _ = eh.Command(TestCommandStringValue{})
 
-func (t TestCommandStringValue) AggregateID() ID              { return t.TestID }
-func (t TestCommandStringValue) AggregateType() AggregateType { return AggregateType("Test") }
-func (t TestCommandStringValue) CommandType() CommandType {
-	return CommandType("TestCommandStringValue")
+func (t TestCommandStringValue) AggregateID() eh.ID              { return t.TestID }
+func (t TestCommandStringValue) AggregateType() eh.AggregateType { return eh.AggregateType("Test") }
+func (t TestCommandStringValue) CommandType() eh.CommandType {
+	return eh.CommandType("TestCommandStringValue")
 }
 
 type TestCommandIntValue struct {
-	TestID  ID
+	TestID  eh.ID
 	Content int
 }
 
-var _ = Command(TestCommandIntValue{})
+var _ = eh.Command(TestCommandIntValue{})
 
-func (t TestCommandIntValue) AggregateID() ID              { return t.TestID }
-func (t TestCommandIntValue) AggregateType() AggregateType { return AggregateType("Test") }
-func (t TestCommandIntValue) CommandType() CommandType {
-	return CommandType("TestCommandIntValue")
+func (t TestCommandIntValue) AggregateID() eh.ID              { return t.TestID }
+func (t TestCommandIntValue) AggregateType() eh.AggregateType { return eh.AggregateType("Test") }
+func (t TestCommandIntValue) CommandType() eh.CommandType {
+	return eh.CommandType("TestCommandIntValue")
 }
 
 type TestCommandFloatValue struct {
-	TestID  ID
+	TestID  eh.ID
 	Content float32
 }
 
-var _ = Command(TestCommandFloatValue{})
+var _ = eh.Command(TestCommandFloatValue{})
 
-func (t TestCommandFloatValue) AggregateID() ID              { return t.TestID }
-func (t TestCommandFloatValue) AggregateType() AggregateType { return AggregateType("Test") }
-func (t TestCommandFloatValue) CommandType() CommandType {
-	return CommandType("TestCommandFloatValue")
+func (t TestCommandFloatValue) AggregateID() eh.ID              { return t.TestID }
+func (t TestCommandFloatValue) AggregateType() eh.AggregateType { return eh.AggregateType("Test") }
+func (t TestCommandFloatValue) CommandType() eh.CommandType {
+	return eh.CommandType("TestCommandFloatValue")
 }
 
 type TestCommandBoolValue struct {
-	TestID  ID
+	TestID  eh.ID
 	Content bool
 }
 
-var _ = Command(TestCommandBoolValue{})
+var _ = eh.Command(TestCommandBoolValue{})
 
-func (t TestCommandBoolValue) AggregateID() ID              { return t.TestID }
-func (t TestCommandBoolValue) AggregateType() AggregateType { return AggregateType("Test") }
-func (t TestCommandBoolValue) CommandType() CommandType {
-	return CommandType("TestCommandBoolValue")
+func (t TestCommandBoolValue) AggregateID() eh.ID              { return t.TestID }
+func (t TestCommandBoolValue) AggregateType() eh.AggregateType { return eh.AggregateType("Test") }
+func (t TestCommandBoolValue) CommandType() eh.CommandType {
+	return eh.CommandType("TestCommandBoolValue")
 }
 
 type TestCommandSlice struct {
-	TestID ID
+	TestID eh.ID
 	Slice  []string
 }
 
-var _ = Command(TestCommandSlice{})
+var _ = eh.Command(TestCommandSlice{})
 
-func (t TestCommandSlice) AggregateID() ID              { return t.TestID }
-func (t TestCommandSlice) AggregateType() AggregateType { return AggregateType("Test") }
-func (t TestCommandSlice) CommandType() CommandType     { return CommandType("TestCommandSlice") }
+func (t TestCommandSlice) AggregateID() eh.ID              { return t.TestID }
+func (t TestCommandSlice) AggregateType() eh.AggregateType { return eh.AggregateType("Test") }
+func (t TestCommandSlice) CommandType() eh.CommandType     { return eh.CommandType("TestCommandSlice") }
 
 type TestCommandMap struct {
-	TestID ID
+	TestID eh.ID
 	Map    map[string]string
 }
 
-var _ = Command(TestCommandMap{})
+var _ = eh.Command(TestCommandMap{})
 
-func (t TestCommandMap) AggregateID() ID              { return t.TestID }
-func (t TestCommandMap) AggregateType() AggregateType { return AggregateType("Test") }
-func (t TestCommandMap) CommandType() CommandType     { return CommandType("TestCommandMap") }
+func (t TestCommandMap) AggregateID() eh.ID              { return t.TestID }
+func (t TestCommandMap) AggregateType() eh.AggregateType { return eh.AggregateType("Test") }
+func (t TestCommandMap) CommandType() eh.CommandType     { return eh.CommandType("TestCommandMap") }
 
 type TestCommandStruct struct {
-	TestID ID
+	TestID eh.ID
 	Struct struct {
 		Test string
 	}
 }
 
-var _ = Command(TestCommandStruct{})
+var _ = eh.Command(TestCommandStruct{})
 
-func (t TestCommandStruct) AggregateID() ID              { return t.TestID }
-func (t TestCommandStruct) AggregateType() AggregateType { return AggregateType("Test") }
-func (t TestCommandStruct) CommandType() CommandType     { return CommandType("TestCommandStruct") }
+func (t TestCommandStruct) AggregateID() eh.ID              { return t.TestID }
+func (t TestCommandStruct) AggregateType() eh.AggregateType { return eh.AggregateType("Test") }
+func (t TestCommandStruct) CommandType() eh.CommandType     { return eh.CommandType("TestCommandStruct") }
 
 type TestCommandTime struct {
-	TestID ID
+	TestID eh.ID
 	Time   time.Time
 }
 
-var _ = Command(TestCommandTime{})
+var _ = eh.Command(TestCommandTime{})
 
-func (t TestCommandTime) AggregateID() ID              { return t.TestID }
-func (t TestCommandTime) AggregateType() AggregateType { return AggregateType("Test") }
-func (t TestCommandTime) CommandType() CommandType     { return CommandType("TestCommandTime") }
+func (t TestCommandTime) AggregateID() eh.ID              { return t.TestID }
+func (t TestCommandTime) AggregateType() eh.AggregateType { return eh.AggregateType("Test") }
+func (t TestCommandTime) CommandType() eh.CommandType     { return eh.CommandType("TestCommandTime") }
 
 type TestCommandOptional struct {
-	TestID  ID
+	TestID  eh.ID
 	Content string `eh:"optional"`
 }
 
-var _ = Command(TestCommandOptional{})
+var _ = eh.Command(TestCommandOptional{})
 
-func (t TestCommandOptional) AggregateID() ID              { return t.TestID }
-func (t TestCommandOptional) AggregateType() AggregateType { return AggregateType("Test") }
-func (t TestCommandOptional) CommandType() CommandType {
-	return CommandType("TestCommandOptional")
+func (t TestCommandOptional) AggregateID() eh.ID              { return t.TestID }
+func (t TestCommandOptional) AggregateType() eh.AggregateType { return eh.AggregateType("Test") }
+func (t TestCommandOptional) CommandType() eh.CommandType {
+	return eh.CommandType("TestCommandOptional")
 }
 
 type TestCommandPrivate struct {
-	TestID  ID
+	TestID  eh.ID
 	private string
 }
 
-var _ = Command(TestCommandPrivate{})
+var _ = eh.Command(TestCommandPrivate{})
 
-func (t TestCommandPrivate) AggregateID() ID              { return t.TestID }
-func (t TestCommandPrivate) AggregateType() AggregateType { return AggregateType("Test") }
-func (t TestCommandPrivate) CommandType() CommandType     { return CommandType("TestCommandPrivate") }
+func (t TestCommandPrivate) AggregateID() eh.ID              { return t.TestID }
+func (t TestCommandPrivate) AggregateType() eh.AggregateType { return eh.AggregateType("Test") }
+func (t TestCommandPrivate) CommandType() eh.CommandType     { return eh.CommandType("TestCommandPrivate") }
 
 type TestCommandArray struct {
-	TestID      ID
+	TestID      eh.ID
 	StringArray [1]string
 	IntArray    [1]int
 	StructArray [1]struct {
@@ -356,8 +359,8 @@ type TestCommandArray struct {
 	}
 }
 
-var _ = Command(TestCommandArray{})
+var _ = eh.Command(TestCommandArray{})
 
-func (t TestCommandArray) AggregateID() ID              { return t.TestID }
-func (t TestCommandArray) AggregateType() AggregateType { return AggregateType("Test") }
-func (t TestCommandArray) CommandType() CommandType     { return CommandType("TestCommandArray") }
+func (t TestCommandArray) AggregateID() eh.ID              { return t.TestID }
+func (t TestCommandArray) AggregateType() eh.AggregateType { return eh.AggregateType("Test") }
+func (t TestCommandArray) CommandType() eh.CommandType     { return eh.CommandType("TestCommandArray") }

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package mongodb
+package mongodb_test
 
 import (
 	"context"
@@ -21,9 +21,10 @@ import (
 
 	eh "github.com/looplab/eventhorizon"
 	"github.com/looplab/eventhorizon/eventstore"
+	"github.com/looplab/eventhorizon/eventstore/mongodb"
 )
 
-func TestEventStore(t *testing.T) {
+func TestIntegration_EventStore(t *testing.T) {
 	// Local Mongo testing with Docker
 	url := os.Getenv("MONGO_HOST")
 
@@ -32,7 +33,7 @@ func TestEventStore(t *testing.T) {
 		url = "localhost:27017"
 	}
 
-	store, err := NewEventStore(url, "test")
+	store, err := mongodb.NewEventStore(url, "test")
 	if err != nil {
 		t.Fatal("there should be no error:", err)
 	}

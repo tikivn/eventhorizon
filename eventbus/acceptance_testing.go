@@ -30,7 +30,7 @@ import (
 // should pass. It should manually be called from a test case in each
 // implementation:
 //
-//   func TestEventBus(t *testing.T) {
+//   func Test_EventBus(t *testing.T) {
 //       bus1 := NewEventBus()
 //       bus2 := NewEventBus()
 //       eventbus.AcceptanceTest(t, bus1, bus2)

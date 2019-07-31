@@ -12,22 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package waiter
+package waiter_test
 
 import (
 	"context"
 	"reflect"
 	"testing"
-
 	"time"
 
 	"github.com/google/uuid"
 	eh "github.com/looplab/eventhorizon"
+	"github.com/looplab/eventhorizon/eventhandler/waiter"
 	"github.com/looplab/eventhorizon/mocks"
 )
 
-func TestEventHandler(t *testing.T) {
-	h := NewEventHandler()
+func Test_EventHandler(t *testing.T) {
+	h := waiter.NewEventHandler()
 
 	// Event should match when waiting.
 	timestamp := time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC)

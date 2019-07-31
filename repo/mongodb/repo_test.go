@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package mongodb
+package mongodb_test
 
 import (
 	"context"
@@ -28,9 +28,10 @@ import (
 	eh "github.com/looplab/eventhorizon"
 	"github.com/looplab/eventhorizon/mocks"
 	"github.com/looplab/eventhorizon/repo"
+	"github.com/looplab/eventhorizon/repo/mongodb"
 )
 
-func TestReadRepo(t *testing.T) {
+func TestIntegration_ReadRepo(t *testing.T) {
 	// Local Mongo testing with Docker
 	url := os.Getenv("MONGO_HOST")
 
@@ -39,7 +40,7 @@ func TestReadRepo(t *testing.T) {
 		url = "localhost:27017"
 	}
 
-	r, err := NewRepo(url, "test", "mocks.Model")
+	r, err := mongodb.NewRepo(url, "test", "mocks.Model")
 	if err != nil {
 		t.Error("there should be no error:", err)
 	}
@@ -77,7 +78,7 @@ func TestReadRepo(t *testing.T) {
 
 }
 
-func extraRepoTests(t *testing.T, ctx context.Context, r *Repo) {
+func extraRepoTests(t *testing.T, ctx context.Context, r *mongodb.Repo) {
 	// Insert a custom item.
 	modelCustom := &mocks.Model{
 		ID:        uuid.New().String(),
@@ -103,7 +104,7 @@ func extraRepoTests(t *testing.T, ctx context.Context, r *Repo) {
 	result, err = r.FindCustom(ctx, func(c *mgo.Collection) *mgo.Query {
 		return nil
 	})
-	if rrErr, ok := err.(eh.RepoError); !ok || rrErr.Err != ErrInvalidQuery {
+	if rrErr, ok := err.(eh.RepoError); !ok || rrErr.Err != mongodb.ErrInvalidQuery {
 		t.Error("there should be a invalid query error:", err)
 	}
 
@@ -117,7 +118,7 @@ func extraRepoTests(t *testing.T, ctx context.Context, r *Repo) {
 		// Be sure to return nil to not execute the query again in FindCustom.
 		return nil
 	})
-	if rrErr, ok := err.(eh.RepoError); !ok || rrErr.Err != ErrInvalidQuery {
+	if rrErr, ok := err.(eh.RepoError); !ok || rrErr.Err != mongodb.ErrInvalidQuery {
 		t.Error("there should be a invalid query error:", err)
 	}
 	if count != 2 {
@@ -165,13 +166,13 @@ func extraRepoTests(t *testing.T, ctx context.Context, r *Repo) {
 
 }
 
-func TestRepository(t *testing.T) {
-	if r := Repository(nil); r != nil {
+func TestIntegration_Repository(t *testing.T) {
+	if r := mongodb.Repository(nil); r != nil {
 		t.Error("the parent repository should be nil:", r)
 	}
 
 	inner := &mocks.Repo{}
-	if r := Repository(inner); r != nil {
+	if r := mongodb.Repository(inner); r != nil {
 		t.Error("the parent repository should be nil:", r)
 	}
 
@@ -183,14 +184,14 @@ func TestRepository(t *testing.T) {
 		url = "localhost:27017"
 	}
 
-	repo, err := NewRepo(url, "test", "mocks.Model")
+	repo, err := mongodb.NewRepo(url, "test", "mocks.Model")
 	if err != nil {
 		t.Error("there should be no error:", err)
 	}
 	defer repo.Close()
 
 	outer := &mocks.Repo{ParentRepo: repo}
-	if r := Repository(outer); r != repo {
+	if r := mongodb.Repository(outer); r != repo {
 		t.Error("the parent repository should be correct:", r)
 	}
 }

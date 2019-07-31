@@ -12,28 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package eventhorizon
+package eventhorizon_test
 
 import (
 	"context"
 	"reflect"
 	"testing"
+
+	eh "github.com/looplab/eventhorizon"
 )
 
-func TestCommandHandlerMiddleware(t *testing.T) {
+func Test_CommandHandlerMiddleware(t *testing.T) {
 	order := []string{}
-	middleware := func(s string) CommandHandlerMiddleware {
-		return CommandHandlerMiddleware(func(h CommandHandler) CommandHandler {
-			return CommandHandlerFunc(func(ctx context.Context, cmd Command) error {
+	middleware := func(s string) eh.CommandHandlerMiddleware {
+		return eh.CommandHandlerMiddleware(func(h eh.CommandHandler) eh.CommandHandler {
+			return eh.CommandHandlerFunc(func(ctx context.Context, cmd eh.Command) error {
 				order = append(order, s)
 				return h.HandleCommand(ctx, cmd)
 			})
 		})
 	}
-	handler := func(ctx context.Context, cmd Command) error {
+	handler := func(ctx context.Context, cmd eh.Command) error {
 		return nil
 	}
-	h := UseCommandHandlerMiddleware(CommandHandlerFunc(handler),
+	h := eh.UseCommandHandlerMiddleware(eh.CommandHandlerFunc(handler),
 		middleware("first"),
 		middleware("second"),
 		middleware("third"),
@@ -47,8 +49,8 @@ func TestCommandHandlerMiddleware(t *testing.T) {
 
 type TestCommand struct{}
 
-var _ = Command(TestCommand{})
+var _ = eh.Command(TestCommand{})
 
-func (a TestCommand) AggregateID() ID              { return NilID }
-func (a TestCommand) AggregateType() AggregateType { return "test" }
-func (a TestCommand) CommandType() CommandType     { return "tes" }
+func (a TestCommand) AggregateID() eh.ID              { return eh.NilID }
+func (a TestCommand) AggregateType() eh.AggregateType { return "test" }
+func (a TestCommand) CommandType() eh.CommandType     { return "tes" }

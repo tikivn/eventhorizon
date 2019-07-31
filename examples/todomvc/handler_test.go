@@ -31,7 +31,7 @@ import (
 	"github.com/looplab/eventhorizon/examples/todomvc/internal/domain"
 )
 
-func TestStaticFiles(t *testing.T) {
+func TestIntegration_StaticFiles(t *testing.T) {
 	h, err := NewHandler()
 	if err != nil {
 		t.Fatal(err)
@@ -45,7 +45,7 @@ func TestStaticFiles(t *testing.T) {
 	}
 }
 
-func TestGetAll(t *testing.T) {
+func TestIntegration_GetAll(t *testing.T) {
 	domain.TimeNow = func() time.Time {
 		return time.Date(2017, time.July, 10, 23, 0, 0, 0, time.UTC)
 	}
@@ -102,7 +102,7 @@ func TestGetAll(t *testing.T) {
 	}
 }
 
-func TestCreate(t *testing.T) {
+func TestIntegration_Create(t *testing.T) {
 	domain.TimeNow = func() time.Time {
 		return time.Date(2017, time.July, 10, 23, 0, 0, 0, time.UTC)
 	}
@@ -159,7 +159,7 @@ func TestCreate(t *testing.T) {
 	}
 }
 
-func TestDelete(t *testing.T) {
+func TestIntegration_Delete(t *testing.T) {
 	domain.TimeNow = func() time.Time {
 		return time.Date(2017, time.July, 10, 23, 0, 0, 0, time.UTC)
 	}
@@ -207,7 +207,7 @@ func TestDelete(t *testing.T) {
 	}
 }
 
-func TestAddItem(t *testing.T) {
+func TestIntegration_AddItem(t *testing.T) {
 	domain.TimeNow = func() time.Time {
 		return time.Date(2017, time.July, 10, 23, 0, 0, 0, time.UTC)
 	}
@@ -275,7 +275,7 @@ func TestAddItem(t *testing.T) {
 	}
 }
 
-func TestRemoveItem(t *testing.T) {
+func TestIntegration_RemoveItem(t *testing.T) {
 	domain.TimeNow = func() time.Time {
 		return time.Date(2017, time.July, 10, 23, 0, 0, 0, time.UTC)
 	}
@@ -344,7 +344,7 @@ func TestRemoveItem(t *testing.T) {
 	}
 }
 
-func TestRemoveCompleted(t *testing.T) {
+func TestIntegration_RemoveCompleted(t *testing.T) {
 	domain.TimeNow = func() time.Time {
 		return time.Date(2017, time.July, 10, 23, 0, 0, 0, time.UTC)
 	}
@@ -433,7 +433,7 @@ func TestRemoveCompleted(t *testing.T) {
 	}
 }
 
-func TestSetItemDesc(t *testing.T) {
+func TestIntegration_SetItemDesc(t *testing.T) {
 	domain.TimeNow = func() time.Time {
 		return time.Date(2017, time.July, 10, 23, 0, 0, 0, time.UTC)
 	}
@@ -507,7 +507,7 @@ func TestSetItemDesc(t *testing.T) {
 	}
 }
 
-func TestCheckItem(t *testing.T) {
+func TestIntegration_CheckItem(t *testing.T) {
 	domain.TimeNow = func() time.Time {
 		return time.Date(2017, time.July, 10, 23, 0, 0, 0, time.UTC)
 	}
@@ -592,7 +592,7 @@ func TestCheckItem(t *testing.T) {
 	}
 }
 
-func TestCheckAllItems(t *testing.T) {
+func TestIntegration_CheckAllItems(t *testing.T) {
 	domain.TimeNow = func() time.Time {
 		return time.Date(2017, time.July, 10, 23, 0, 0, 0, time.UTC)
 	}

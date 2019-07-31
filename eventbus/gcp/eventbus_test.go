@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package gcp
+package gcp_test
 
 import (
 	"crypto/rand"
@@ -22,9 +22,10 @@ import (
 	"time"
 
 	"github.com/looplab/eventhorizon/eventbus"
+	"github.com/looplab/eventhorizon/eventbus/gcp"
 )
 
-func TestEventBus(t *testing.T) {
+func TestIntegration_EventBus(t *testing.T) {
 	// Connect to localhost if not running inside docker
 	if os.Getenv("PUBSUB_EMULATOR_HOST") == "" {
 		os.Setenv("PUBSUB_EMULATOR_HOST", "localhost:8793")
@@ -37,12 +38,12 @@ func TestEventBus(t *testing.T) {
 	}
 	appID := "app-" + hex.EncodeToString(b)
 
-	bus1, err := NewEventBus("project_id", appID)
+	bus1, err := gcp.NewEventBus("project_id", appID)
 	if err != nil {
 		t.Fatal("there should be no error:", err)
 	}
 
-	bus2, err := NewEventBus("project_id", appID)
+	bus2, err := gcp.NewEventBus("project_id", appID)
 	if err != nil {
 		t.Fatal("there should be no error:", err)
 	}

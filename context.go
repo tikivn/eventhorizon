@@ -31,11 +31,11 @@ func init() {
 	// Register the namespace context.
 	RegisterContextMarshaler(func(ctx context.Context, vals map[string]interface{}) {
 		if ns, ok := ctx.Value(namespaceKey).(string); ok {
-			vals[namespaceKeyStr] = ns
+			vals[NamespaceKeyStr] = ns
 		}
 	})
 	RegisterContextUnmarshaler(func(ctx context.Context, vals map[string]interface{}) context.Context {
-		if ns, ok := vals[namespaceKeyStr].(string); ok {
+		if ns, ok := vals[NamespaceKeyStr].(string); ok {
 			return NewContextWithNamespace(ctx, ns)
 		}
 		return ctx
@@ -44,15 +44,15 @@ func init() {
 	// Register the version context.
 	RegisterContextMarshaler(func(ctx context.Context, vals map[string]interface{}) {
 		if v, ok := ctx.Value(minVersionKey).(int); ok {
-			vals[minVersionKeyStr] = v
+			vals[MinVersionKeyStr] = v
 		}
 	})
 	RegisterContextUnmarshaler(func(ctx context.Context, vals map[string]interface{}) context.Context {
-		if v, ok := vals[minVersionKeyStr].(int); ok {
+		if v, ok := vals[MinVersionKeyStr].(int); ok {
 			return NewContextWithMinVersion(ctx, v)
 		}
 		// Support JSON-like marshaling of ints as floats.
-		if v, ok := vals[minVersionKeyStr].(float64); ok {
+		if v, ok := vals[MinVersionKeyStr].(float64); ok {
 			return NewContextWithMinVersion(ctx, int(v))
 		}
 		return ctx
@@ -69,8 +69,8 @@ const (
 
 // Strings used to marshal context values.
 const (
-	namespaceKeyStr  = "eh_namespace"
-	minVersionKeyStr = "eh_minversion"
+	NamespaceKeyStr  = "eh_namespace"
+	MinVersionKeyStr = "eh_minversion"
 )
 
 // NamespaceFromContext returns the namespace from the context, or the default
@@ -114,6 +114,14 @@ var (
 	contextUnmarshalFuncs   = []ContextUnmarshalFunc{}
 	contextUnmarshalFuncsMu = sync.RWMutex{}
 )
+
+func ContextMarshalers() []ContextMarshalFunc {
+	return contextMarshalFuncs
+}
+
+func ContextUnmarshalers() []ContextUnmarshalFunc {
+	return contextUnmarshalFuncs
+}
 
 // ContextMarshalFunc is a function that marshalls any context values to a map,
 // used for sending context on the wire.

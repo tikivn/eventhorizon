@@ -28,7 +28,7 @@ import (
 	"github.com/looplab/eventhorizon/mocks"
 )
 
-func TestAggregateHandleCommand(t *testing.T) {
+func Test_AggregateHandleCommand(t *testing.T) {
 	TimeNow = func() time.Time {
 		return time.Date(2017, time.July, 10, 23, 0, 0, 0, time.Local)
 	}
@@ -426,7 +426,7 @@ func TestAggregateHandleCommand(t *testing.T) {
 	}
 }
 
-func TestAggregateApplyEvent(t *testing.T) {
+func Test_AggregateApplyEvent(t *testing.T) {
 	TimeNow = func() time.Time {
 		return time.Date(2017, time.July, 10, 23, 0, 0, 0, time.Local)
 	}

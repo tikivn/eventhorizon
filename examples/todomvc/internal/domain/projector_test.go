@@ -26,7 +26,7 @@ import (
 	eh "github.com/looplab/eventhorizon"
 )
 
-func TestProjector(t *testing.T) {
+func Test_Projector(t *testing.T) {
 	TimeNow = func() time.Time {
 		return time.Date(2017, time.July, 10, 23, 0, 0, 0, time.Local)
 	}

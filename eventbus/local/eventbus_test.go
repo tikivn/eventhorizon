@@ -12,27 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package local
+package local_test
 
 import (
 	"testing"
 	"time"
 
 	"github.com/looplab/eventhorizon/eventbus"
+	"github.com/looplab/eventhorizon/eventbus/local"
 )
 
-func TestEventBus(t *testing.T) {
-	group := NewGroup()
+func Test_EventBus(t *testing.T) {
+	group := local.NewGroup()
 	if group == nil {
 		t.Fatal("there should be a group")
 	}
 
-	bus1 := NewEventBus(group)
+	bus1 := local.NewEventBus(group)
 	if bus1 == nil {
 		t.Fatal("there should be a bus")
 	}
 
-	bus2 := NewEventBus(group)
+	bus2 := local.NewEventBus(group)
 	if bus2 == nil {
 		t.Fatal("there should be a bus")
 	}

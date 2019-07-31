@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package version
+package cache_test
 
 import (
 	"context"
@@ -24,12 +24,13 @@ import (
 	eh "github.com/looplab/eventhorizon"
 	"github.com/looplab/eventhorizon/mocks"
 	"github.com/looplab/eventhorizon/repo"
+	"github.com/looplab/eventhorizon/repo/cache"
 	"github.com/looplab/eventhorizon/repo/memory"
 )
 
-func TestReadRepo(t *testing.T) {
+func Test_ReadRepo(t *testing.T) {
 	baseRepo := memory.NewRepo()
-	r := NewRepo(baseRepo)
+	r := cache.NewRepo(baseRepo)
 	if r == nil {
 		t.Error("there should be a repository")
 	}
@@ -58,7 +59,7 @@ func extraRepoTests(t *testing.T, ctx context.Context) {
 	baseRepo := &mocks.Repo{
 		Entity: simpleModel,
 	}
-	r := NewRepo(baseRepo)
+	r := cache.NewRepo(baseRepo)
 	entity, err := r.Find(ctx, simpleModel.ID)
 	if err != nil {
 		t.Error("there should be no error:", err)
@@ -85,7 +86,7 @@ func extraRepoTests(t *testing.T, ctx context.Context) {
 	baseRepo = &mocks.Repo{
 		Entities: []eh.Entity{simpleModel},
 	}
-	r = NewRepo(baseRepo)
+	r = cache.NewRepo(baseRepo)
 	entities, err := r.FindAll(ctx)
 	if err != nil {
 		t.Error("there should be no error:", err)
@@ -112,7 +113,7 @@ func extraRepoTests(t *testing.T, ctx context.Context) {
 	baseRepo = &mocks.Repo{
 		Entity: simpleModel,
 	}
-	r = NewRepo(baseRepo)
+	r = cache.NewRepo(baseRepo)
 	entity, err = r.Find(ctx, simpleModel.ID)
 	if err != nil {
 		t.Error("there should be no error:", err)
@@ -145,7 +146,7 @@ func extraRepoTests(t *testing.T, ctx context.Context) {
 	baseRepo = &mocks.Repo{
 		Entity: simpleModel,
 	}
-	r = NewRepo(baseRepo)
+	r = cache.NewRepo(baseRepo)
 	entity, err = r.Find(ctx, simpleModel.ID)
 	if err != nil {
 		t.Error("there should be no error:", err)
@@ -175,7 +176,7 @@ func extraRepoTests(t *testing.T, ctx context.Context) {
 	baseRepo = &mocks.Repo{
 		Entity: simpleModel,
 	}
-	r = NewRepo(baseRepo)
+	r = cache.NewRepo(baseRepo)
 	event := eh.NewEventForAggregate(mocks.EventType, nil,
 		time.Now(), mocks.AggregateType, simpleModel.EntityID(), 1)
 	r.Notify(ctx, event)
@@ -192,19 +193,19 @@ func extraRepoTests(t *testing.T, ctx context.Context) {
 	}
 }
 
-func TestRepository(t *testing.T) {
-	if r := Repository(nil); r != nil {
+func Test_Repository(t *testing.T) {
+	if r := cache.Repository(nil); r != nil {
 		t.Error("the parent repository should be nil:", r)
 	}
 
 	inner := &mocks.Repo{}
-	if r := Repository(inner); r != nil {
+	if r := cache.Repository(inner); r != nil {
 		t.Error("the parent repository should be nil:", r)
 	}
 
-	r := NewRepo(inner)
+	r := cache.NewRepo(inner)
 	outer := &mocks.Repo{ParentRepo: r}
-	if r := Repository(outer); r != r {
+	if r := cache.Repository(outer); r != r {
 		t.Error("the parent repository should be correct:", r)
 	}
 }

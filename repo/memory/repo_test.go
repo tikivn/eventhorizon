@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package memory
+package memory_test
 
 import (
 	"context"
@@ -21,10 +21,11 @@ import (
 	eh "github.com/looplab/eventhorizon"
 	"github.com/looplab/eventhorizon/mocks"
 	"github.com/looplab/eventhorizon/repo"
+	"github.com/looplab/eventhorizon/repo/memory"
 )
 
-func TestReadRepo(t *testing.T) {
-	r := NewRepo()
+func Test_ReadRepo(t *testing.T) {
+	r := memory.NewRepo()
 	if r == nil {
 		t.Error("there should be a repository")
 	}
@@ -41,19 +42,19 @@ func TestReadRepo(t *testing.T) {
 
 }
 
-func TestRepository(t *testing.T) {
-	if r := Repository(nil); r != nil {
+func Test_Repository(t *testing.T) {
+	if r := memory.Repository(nil); r != nil {
 		t.Error("the parent repository should be nil:", r)
 	}
 
 	inner := &mocks.Repo{}
-	if r := Repository(inner); r != nil {
+	if r := memory.Repository(inner); r != nil {
 		t.Error("the parent repository should be nil:", r)
 	}
 
-	repo := NewRepo()
+	repo := memory.NewRepo()
 	outer := &mocks.Repo{ParentRepo: repo}
-	if r := Repository(outer); r != repo {
+	if r := memory.Repository(outer); r != repo {
 		t.Error("the parent repository should be correct:", r)
 	}
 }

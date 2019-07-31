@@ -29,7 +29,7 @@ import (
 // should pass. It should manually be called from a test case in each
 // implementation:
 //
-//   func TestEventStore(t *testing.T) {
+//   func Test_EventStore(t *testing.T) {
 //       ctx := context.Background() // Or other when testing namespaces.
 //       store := NewEventStore()
 //       eventstore.AcceptanceTest(t, ctx, store)
@@ -158,7 +158,7 @@ func AcceptanceTest(t *testing.T, ctx context.Context, store eh.EventStore) []eh
 // EventStoreMaintainer should pass. It should manually be called from a test
 // case in each implementation:
 //
-//   func TestEventStore(t *testing.T) {
+//   func Test_EventStore(t *testing.T) {
 //       ctx := context.Background() // Or other when testing namespaces.
 //       store := NewEventStore()
 //       eventstore.AcceptanceTest(t, ctx, store)
