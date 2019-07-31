@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package async
+package async_test
 
 import (
 	"context"
@@ -21,12 +21,14 @@ import (
 	"testing"
 	"time"
 
+	"github.com/looplab/eventhorizon/middleware/eventhandler/async"
+
 	"github.com/google/uuid"
 	eh "github.com/looplab/eventhorizon"
 	"github.com/looplab/eventhorizon/mocks"
 )
 
-func TestEventHandler(t *testing.T) {
+func Test_EventHandler(t *testing.T) {
 	id := uuid.New().String()
 	eventData := &mocks.EventData{Content: "event1"}
 	timestamp := time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC)
@@ -34,7 +36,7 @@ func TestEventHandler(t *testing.T) {
 		mocks.AggregateType, id, 1)
 
 	inner := mocks.NewEventHandler("test")
-	m, errCh := NewMiddleware()
+	m, errCh := async.NewMiddleware()
 	h := eh.UseEventHandlerMiddleware(inner, m)
 	if err := h.HandleEvent(context.Background(), event); err != nil {
 		t.Error("there should never be an error:", err)
@@ -50,7 +52,7 @@ func TestEventHandler(t *testing.T) {
 
 	// Error handling.
 	inner = mocks.NewEventHandler("test")
-	m, errCh = NewMiddleware()
+	m, errCh = async.NewMiddleware()
 	h = eh.UseEventHandlerMiddleware(inner, m)
 	handlingErr := errors.New("handling error")
 	inner.Err = handlingErr

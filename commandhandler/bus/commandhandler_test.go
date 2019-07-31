@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package bus
+package bus_test
 
 import (
 	"context"
@@ -21,12 +21,13 @@ import (
 
 	"github.com/google/uuid"
 	eh "github.com/looplab/eventhorizon"
+	"github.com/looplab/eventhorizon/commandhandler/bus"
 	"github.com/looplab/eventhorizon/mocks"
 )
 
-func TestCommandHandler(t *testing.T) {
-	bus := NewCommandHandler()
-	if bus == nil {
+func Test_CommandHandler(t *testing.T) {
+	b := bus.NewCommandHandler()
+	if b == nil {
 		t.Fatal("there should be a bus")
 	}
 
@@ -34,20 +35,20 @@ func TestCommandHandler(t *testing.T) {
 
 	t.Log("handle with no handler")
 	cmd := &mocks.Command{ID: uuid.New().String(), Content: "command1"}
-	err := bus.HandleCommand(ctx, cmd)
-	if err != ErrHandlerNotFound {
+	err := b.HandleCommand(ctx, cmd)
+	if err != bus.ErrHandlerNotFound {
 		t.Error("there should be a ErrHandlerNotFound error:", err)
 	}
 
 	t.Log("set handler")
 	handler := &mocks.CommandHandler{}
-	err = bus.SetHandler(handler, mocks.CommandType)
+	err = b.SetHandler(handler, mocks.CommandType)
 	if err != nil {
 		t.Error("there should be no error:", err)
 	}
 
 	t.Log("handle with handler")
-	err = bus.HandleCommand(ctx, cmd)
+	err = b.HandleCommand(ctx, cmd)
 	if err != nil {
 		t.Error("there should be no error:", err)
 	}
@@ -58,8 +59,8 @@ func TestCommandHandler(t *testing.T) {
 		t.Error("the context should be correct:", handler.Context)
 	}
 
-	err = bus.SetHandler(handler, mocks.CommandType)
-	if err != ErrHandlerAlreadySet {
+	err = b.SetHandler(handler, mocks.CommandType)
+	if err != bus.ErrHandlerAlreadySet {
 		t.Error("there should be a ErrHandlerAlreadySet error:", err)
 	}
 }

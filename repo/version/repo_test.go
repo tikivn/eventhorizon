@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package version
+package version_test
 
 import (
 	"context"
@@ -25,11 +25,12 @@ import (
 	"github.com/looplab/eventhorizon/mocks"
 	"github.com/looplab/eventhorizon/repo"
 	"github.com/looplab/eventhorizon/repo/memory"
+	"github.com/looplab/eventhorizon/repo/version"
 )
 
-func TestReadRepo(t *testing.T) {
+func Test_ReadRepo(t *testing.T) {
 	baseRepo := memory.NewRepo()
-	r := NewRepo(baseRepo)
+	r := version.NewRepo(baseRepo)
 	if r == nil {
 		t.Error("there should be a repository")
 	}
@@ -48,7 +49,7 @@ func TestReadRepo(t *testing.T) {
 
 }
 
-func extraRepoTests(t *testing.T, ctx context.Context, r *Repo) {
+func extraRepoTests(t *testing.T, ctx context.Context, r *version.Repo) {
 	// Insert a non-versioned item.
 	simpleModel := &mocks.SimpleModel{
 		ID:      uuid.New().String(),
@@ -239,19 +240,19 @@ func extraRepoTests(t *testing.T, ctx context.Context, r *Repo) {
 	}
 }
 
-func TestRepository(t *testing.T) {
-	if r := Repository(nil); r != nil {
+func Test_Repository(t *testing.T) {
+	if r := version.Repository(nil); r != nil {
 		t.Error("the parent repository should be nil:", r)
 	}
 
 	inner := &mocks.Repo{}
-	if r := Repository(inner); r != nil {
+	if r := version.Repository(inner); r != nil {
 		t.Error("the parent repository should be nil:", r)
 	}
 
-	repo := NewRepo(inner)
+	repo := version.NewRepo(inner)
 	outer := &mocks.Repo{ParentRepo: repo}
-	if r := Repository(outer); r != repo {
+	if r := version.Repository(outer); r != repo {
 		t.Error("the parent repository should be correct:", r)
 	}
 }

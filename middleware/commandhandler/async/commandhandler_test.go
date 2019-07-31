@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package async
+package async_test
 
 import (
 	"context"
@@ -23,17 +23,18 @@ import (
 
 	"github.com/google/uuid"
 	eh "github.com/looplab/eventhorizon"
+	"github.com/looplab/eventhorizon/middleware/commandhandler/async"
 	"github.com/looplab/eventhorizon/mocks"
 )
 
-func TestCommandHandler(t *testing.T) {
+func Test_CommandHandler(t *testing.T) {
 	cmd := mocks.Command{
 		ID:      uuid.New().String(),
 		Content: "content",
 	}
 
 	inner := &mocks.CommandHandler{}
-	m, errCh := NewMiddleware()
+	m, errCh := async.NewMiddleware()
 	h := eh.UseCommandHandlerMiddleware(inner, m)
 	if err := h.HandleCommand(context.Background(), cmd); err != nil {
 		t.Error("there should never be an error:", err)
@@ -49,7 +50,7 @@ func TestCommandHandler(t *testing.T) {
 
 	// Error handling.
 	inner = &mocks.CommandHandler{}
-	m, errCh = NewMiddleware()
+	m, errCh = async.NewMiddleware()
 	h = eh.UseCommandHandlerMiddleware(inner, m)
 	handlingErr := errors.New("handling error")
 	inner.Err = handlingErr

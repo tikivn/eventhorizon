@@ -23,7 +23,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func TestModelJSON(t *testing.T) {
+func Test_ModelJSON(t *testing.T) {
 	id := uuid.New().String()
 	now := time.Now()
 

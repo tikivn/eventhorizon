@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package events
+package events_test
 
 import (
 	"context"
@@ -22,11 +22,12 @@ import (
 
 	"github.com/google/uuid"
 	eh "github.com/looplab/eventhorizon"
+	"github.com/looplab/eventhorizon/aggregatestore/events"
 )
 
-func TestNewAggregateBase(t *testing.T) {
+func Test_NewAggregateBase(t *testing.T) {
 	id := uuid.New().String()
-	agg := NewAggregateBase(TestAggregateType, id)
+	agg := events.NewAggregateBase(TestAggregateType, id)
 	if agg == nil {
 		t.Fatal("there should be an aggregate")
 	}
@@ -41,8 +42,8 @@ func TestNewAggregateBase(t *testing.T) {
 	}
 }
 
-func TestAggregateVersion(t *testing.T) {
-	agg := NewAggregateBase(TestAggregateType, uuid.New().String())
+func Test_AggregateVersion(t *testing.T) {
+	agg := events.NewAggregateBase(TestAggregateType, uuid.New().String())
 	if agg.Version() != 0 {
 		t.Error("the version should be 0:", agg.Version())
 	}
@@ -53,7 +54,7 @@ func TestAggregateVersion(t *testing.T) {
 	}
 }
 
-func TestAggregateEvents(t *testing.T) {
+func Test_AggregateEvents(t *testing.T) {
 	id := uuid.New().String()
 	agg := NewTestAggregate(id)
 	timestamp := time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC)
@@ -147,15 +148,15 @@ type TestEventData struct {
 }
 
 type TestAggregate struct {
-	*AggregateBase
+	*events.AggregateBase
 	event eh.Event
 }
 
-var _ = Aggregate(&TestAggregate{})
+var _ = events.Aggregate(&TestAggregate{})
 
 func NewTestAggregate(id eh.ID) *TestAggregate {
 	return &TestAggregate{
-		AggregateBase: NewAggregateBase(TestAggregateType, id),
+		AggregateBase: events.NewAggregateBase(TestAggregateType, id),
 	}
 }
 

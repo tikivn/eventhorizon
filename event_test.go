@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package eventhorizon
+package eventhorizon_test
 
 import (
 	"reflect"
@@ -20,11 +20,12 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	eh "github.com/looplab/eventhorizon"
 )
 
-func TestNewEvent(t *testing.T) {
+func Test_NewEvent(t *testing.T) {
 	timestamp := time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC)
-	event := NewEvent(TestEventType, &TestEventData{"event1"}, timestamp)
+	event := eh.NewEvent(TestEventType, &TestEventData{"event1"}, timestamp)
 	if event.EventType() != TestEventType {
 		t.Error("the event type should be correct:", event.EventType())
 	}
@@ -42,7 +43,7 @@ func TestNewEvent(t *testing.T) {
 	}
 
 	id := uuid.New().String()
-	event = NewEventForAggregate(TestEventType, &TestEventData{"event1"}, timestamp,
+	event = eh.NewEventForAggregate(TestEventType, &TestEventData{"event1"}, timestamp,
 		TestAggregateType, id, 3)
 	if event.EventType() != TestEventType {
 		t.Error("the event type should be correct:", event.EventType())
@@ -67,17 +68,17 @@ func TestNewEvent(t *testing.T) {
 	}
 }
 
-func TestCreateEventData(t *testing.T) {
-	data, err := CreateEventData(TestEventRegisterType)
-	if err != ErrEventDataNotRegistered {
+func Test_CreateEventData(t *testing.T) {
+	data, err := eh.CreateEventData(TestEventRegisterType)
+	if err != eh.ErrEventDataNotRegistered {
 		t.Error("there should be a event not registered error:", err)
 	}
 
-	RegisterEventData(TestEventRegisterType, func() EventData {
+	eh.RegisterEventData(TestEventRegisterType, func() eh.EventData {
 		return &TestEventRegisterData{}
 	})
 
-	data, err = CreateEventData(TestEventRegisterType)
+	data, err = eh.CreateEventData(TestEventRegisterType)
 	if err != nil {
 		t.Error("there should be no error:", err)
 	}
@@ -85,63 +86,63 @@ func TestCreateEventData(t *testing.T) {
 		t.Errorf("the event type should be correct: %T", data)
 	}
 
-	UnregisterEventData(TestEventRegisterType)
+	eh.UnregisterEventData(TestEventRegisterType)
 }
 
-func TestRegisterEventEmptyName(t *testing.T) {
+func Test_RegisterEventEmptyName(t *testing.T) {
 	defer func() {
 		if r := recover(); r == nil || r != "eventhorizon: attempt to register empty event type" {
 			t.Error("there should have been a panic:", r)
 		}
 	}()
-	RegisterEventData(TestEventRegisterEmptyType, func() EventData {
+	eh.RegisterEventData(TestEventRegisterEmptyType, func() eh.EventData {
 		return &TestEventRegisterEmptyData{}
 	})
 }
 
-func TestRegisterEventTwice(t *testing.T) {
+func Test_RegisterEventTwice(t *testing.T) {
 	defer func() {
 		if r := recover(); r == nil || r != "eventhorizon: registering duplicate types for \"TestEventRegisterTwice\"" {
 			t.Error("there should have been a panic:", r)
 		}
 	}()
-	RegisterEventData(TestEventRegisterTwiceType, func() EventData {
+	eh.RegisterEventData(TestEventRegisterTwiceType, func() eh.EventData {
 		return &TestEventRegisterTwiceData{}
 	})
-	RegisterEventData(TestEventRegisterTwiceType, func() EventData {
+	eh.RegisterEventData(TestEventRegisterTwiceType, func() eh.EventData {
 		return &TestEventRegisterTwiceData{}
 	})
 }
 
-func TestUnregisterEventEmptyName(t *testing.T) {
+func Test_UnregisterEventEmptyName(t *testing.T) {
 	defer func() {
 		if r := recover(); r == nil || r != "eventhorizon: attempt to unregister empty event type" {
 			t.Error("there should have been a panic:", r)
 		}
 	}()
-	UnregisterEventData(TestEventUnregisterEmptyType)
+	eh.UnregisterEventData(TestEventUnregisterEmptyType)
 }
 
-func TestUnregisterEventTwice(t *testing.T) {
+func Test_UnregisterEventTwice(t *testing.T) {
 	defer func() {
 		if r := recover(); r == nil || r != "eventhorizon: unregister of non-registered type \"TestEventUnregisterTwice\"" {
 			t.Error("there should have been a panic:", r)
 		}
 	}()
-	RegisterEventData(TestEventUnregisterTwiceType, func() EventData {
+	eh.RegisterEventData(TestEventUnregisterTwiceType, func() eh.EventData {
 		return &TestEventUnregisterTwiceData{}
 	})
-	UnregisterEventData(TestEventUnregisterTwiceType)
-	UnregisterEventData(TestEventUnregisterTwiceType)
+	eh.UnregisterEventData(TestEventUnregisterTwiceType)
+	eh.UnregisterEventData(TestEventUnregisterTwiceType)
 }
 
 const (
-	TestEventType                EventType = "TestEvent"
-	TestEventRegisterType        EventType = "TestEventRegister"
-	TestEventRegisterEmptyType   EventType = ""
-	TestEventRegisterTwiceType   EventType = "TestEventRegisterTwice"
-	TestEventUnregisterEmptyType EventType = ""
-	TestEventUnregisterTwiceType EventType = "TestEventUnregisterTwice"
+	TestEventType                eh.EventType = "TestEvent"
+	TestEventRegisterType        eh.EventType = "TestEventRegister"
+	TestEventRegisterEmptyType   eh.EventType = ""
+	TestEventRegisterTwiceType   eh.EventType = "TestEventRegisterTwice"
+	TestEventUnregisterEmptyType eh.EventType = ""
+	TestEventUnregisterTwiceType eh.EventType = "TestEventUnregisterTwice"
 )
 
 type TestEventData struct {

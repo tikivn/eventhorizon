@@ -12,31 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package eventhorizon
+package eventhorizon_test
 
 import (
 	"errors"
 	"testing"
 	"time"
+
+	eh "github.com/looplab/eventhorizon"
 )
 
-func TestEventBusError(t *testing.T) {
+func Test_EventBusError(t *testing.T) {
 	var testCases = []struct {
 		name              string
 		err               error
-		event             Event
+		event             eh.Event
 		expectedErrorText string
 	}{
 		{
 			"both non-nil",
 			errors.New("some error"),
-			NewEvent("some event type", nil, time.Time{}),
+			eh.NewEvent("some event type", nil, time.Time{}),
 			"some error: (some event type@0)",
 		},
 		{
 			"error nil",
 			nil,
-			NewEvent("some event type", nil, time.Time{}),
+			eh.NewEvent("some event type", nil, time.Time{}),
 			"%!s(<nil>): (some event type@0)",
 		},
 		{
@@ -56,7 +58,7 @@ func TestEventBusError(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			busError := EventBusError{
+			busError := eh.EventBusError{
 				Err:   tc.err,
 				Event: tc.event,
 			}

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package memory
+package memory_test
 
 import (
 	"context"
@@ -20,10 +20,11 @@ import (
 
 	eh "github.com/looplab/eventhorizon"
 	"github.com/looplab/eventhorizon/eventstore"
+	"github.com/looplab/eventhorizon/eventstore/memory"
 )
 
-func TestEventStore(t *testing.T) {
-	store := NewEventStore()
+func Test_EventStore(t *testing.T) {
+	store := memory.NewEventStore()
 	if store == nil {
 		t.Fatal("there should be a store")
 	}

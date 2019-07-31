@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package projector
+package projector_test
 
 import (
 	"context"
@@ -23,14 +23,15 @@ import (
 
 	"github.com/google/uuid"
 	eh "github.com/looplab/eventhorizon"
+	"github.com/looplab/eventhorizon/eventhandler/projector"
 	"github.com/looplab/eventhorizon/mocks"
 	"github.com/looplab/eventhorizon/repo/version"
 )
 
-func TestEventHandler_CreateModel(t *testing.T) {
+func Test_EventHandler_CreateModel(t *testing.T) {
 	repo := &mocks.Repo{}
-	projector := &TestProjector{}
-	handler := NewEventHandler(projector, repo)
+	proj := &TestProjector{}
+	handler := projector.NewEventHandler(proj, repo)
 	handler.SetEntityFactory(func() eh.Entity {
 		return &mocks.SimpleModel{}
 	})
@@ -49,25 +50,25 @@ func TestEventHandler_CreateModel(t *testing.T) {
 	repo.LoadErr = eh.RepoError{
 		Err: eh.ErrEntityNotFound,
 	}
-	projector.newEntity = entity
+	proj.newEntity = entity
 	if err := handler.HandleEvent(ctx, event); err != nil {
 		t.Error("there shoud be no error:", err)
 	}
-	if projector.event != event {
-		t.Error("the handled event should be correct:", projector.event)
+	if proj.event != event {
+		t.Error("the handled event should be correct:", proj.event)
 	}
-	if !reflect.DeepEqual(projector.entity, &mocks.SimpleModel{}) {
-		t.Error("the entity should be correct:", projector.entity)
+	if !reflect.DeepEqual(proj.entity, &mocks.SimpleModel{}) {
+		t.Error("the entity should be correct:", proj.entity)
 	}
-	if repo.Entity != projector.newEntity {
+	if repo.Entity != proj.newEntity {
 		t.Error("the new entity should be correct:", repo.Entity)
 	}
 }
 
-func TestEventHandler_UpdateModel(t *testing.T) {
+func Test_EventHandler_UpdateModel(t *testing.T) {
 	repo := &mocks.Repo{}
-	projector := &TestProjector{}
-	handler := NewEventHandler(projector, repo)
+	proj := &TestProjector{}
+	handler := projector.NewEventHandler(proj, repo)
 	handler.SetEntityFactory(func() eh.Entity {
 		return &mocks.SimpleModel{}
 	})
@@ -83,28 +84,28 @@ func TestEventHandler_UpdateModel(t *testing.T) {
 		ID: id,
 	}
 	repo.Entity = entity
-	projector.newEntity = &mocks.SimpleModel{
+	proj.newEntity = &mocks.SimpleModel{
 		ID:      id,
 		Content: "updated",
 	}
 	if err := handler.HandleEvent(ctx, event); err != nil {
 		t.Error("there shoud be no error:", err)
 	}
-	if projector.event != event {
-		t.Error("the handled event should be correct:", projector.event)
+	if proj.event != event {
+		t.Error("the handled event should be correct:", proj.event)
 	}
-	if projector.entity != entity {
-		t.Error("the entity should be correct:", projector.entity)
+	if proj.entity != entity {
+		t.Error("the entity should be correct:", proj.entity)
 	}
-	if repo.Entity != projector.newEntity {
+	if repo.Entity != proj.newEntity {
 		t.Error("the new entity should be correct:", repo.Entity)
 	}
 }
 
-func TestEventHandler_UpdateModelWithVersion(t *testing.T) {
+func Test_EventHandler_UpdateModelWithVersion(t *testing.T) {
 	repo := &mocks.Repo{}
-	projector := &TestProjector{}
-	handler := NewEventHandler(projector, repo)
+	proj := &TestProjector{}
+	handler := projector.NewEventHandler(proj, repo)
 	handler.SetEntityFactory(func() eh.Entity {
 		return &mocks.Model{}
 	})
@@ -120,7 +121,7 @@ func TestEventHandler_UpdateModelWithVersion(t *testing.T) {
 		ID: id,
 	}
 	repo.Entity = entity
-	projector.newEntity = &mocks.Model{
+	proj.newEntity = &mocks.Model{
 		ID:      id,
 		Version: 1,
 		Content: "version 1",
@@ -128,21 +129,21 @@ func TestEventHandler_UpdateModelWithVersion(t *testing.T) {
 	if err := handler.HandleEvent(ctx, event); err != nil {
 		t.Error("there shoud be no error:", err)
 	}
-	if projector.event != event {
-		t.Error("the handled event should be correct:", projector.event)
+	if proj.event != event {
+		t.Error("the handled event should be correct:", proj.event)
 	}
-	if projector.entity != entity {
-		t.Error("the entity should be correct:", projector.entity)
+	if proj.entity != entity {
+		t.Error("the entity should be correct:", proj.entity)
 	}
-	if repo.Entity != projector.newEntity {
+	if repo.Entity != proj.newEntity {
 		t.Error("the new entity should be correct:", repo.Entity)
 	}
 }
 
-func TestEventHandler_UpdateModelWithEventsOutOfOrder(t *testing.T) {
+func Test_EventHandler_UpdateModelWithEventsOutOfOrder(t *testing.T) {
 	repo := &mocks.Repo{}
-	projector := &TestProjector{}
-	handler := NewEventHandler(projector, version.NewRepo(repo))
+	proj := &TestProjector{}
+	handler := projector.NewEventHandler(proj, version.NewRepo(repo))
 	handler.SetEntityFactory(func() eh.Entity {
 		return &mocks.Model{}
 	})
@@ -165,7 +166,7 @@ func TestEventHandler_UpdateModelWithEventsOutOfOrder(t *testing.T) {
 		Content: "version 2",
 	}
 	repo.Entity = entity
-	projector.newEntity = &mocks.Model{
+	proj.newEntity = &mocks.Model{
 		ID:      id,
 		Version: 3,
 		Content: "version 3",
@@ -177,21 +178,21 @@ func TestEventHandler_UpdateModelWithEventsOutOfOrder(t *testing.T) {
 	if err := handler.HandleEvent(ctx, event); err != nil {
 		t.Error("there shoud be no error:", err)
 	}
-	if projector.event != event {
-		t.Error("the handled event should be correct:", projector.event)
+	if proj.event != event {
+		t.Error("the handled event should be correct:", proj.event)
 	}
-	if projector.entity != newEntity {
-		t.Error("the entity should be correct:", projector.entity)
+	if proj.entity != newEntity {
+		t.Error("the entity should be correct:", proj.entity)
 	}
-	if repo.Entity != projector.newEntity {
+	if repo.Entity != proj.newEntity {
 		t.Error("the new entity should be correct:", repo.Entity)
 	}
 }
 
-func TestEventHandler_DeleteModel(t *testing.T) {
+func Test_EventHandler_DeleteModel(t *testing.T) {
 	repo := &mocks.Repo{}
-	projector := &TestProjector{}
-	handler := NewEventHandler(projector, repo)
+	proj := &TestProjector{}
+	handler := projector.NewEventHandler(proj, repo)
 	handler.SetEntityFactory(func() eh.Entity {
 		return &mocks.SimpleModel{}
 	})
@@ -207,25 +208,25 @@ func TestEventHandler_DeleteModel(t *testing.T) {
 		ID: id,
 	}
 	repo.Entity = entity
-	projector.newEntity = nil
+	proj.newEntity = nil
 	if err := handler.HandleEvent(ctx, event); err != nil {
 		t.Error("there shoud be no error:", err)
 	}
-	if projector.event != event {
-		t.Error("the handled event should be correct:", projector.event)
+	if proj.event != event {
+		t.Error("the handled event should be correct:", proj.event)
 	}
-	if projector.entity != entity {
-		t.Error("the entity should be correct:", projector.entity)
+	if proj.entity != entity {
+		t.Error("the entity should be correct:", proj.entity)
 	}
-	if repo.Entity != projector.newEntity {
+	if repo.Entity != proj.newEntity {
 		t.Error("the new entity should be correct:", repo.Entity)
 	}
 }
 
-func TestEventHandler_LoadError(t *testing.T) {
+func Test_EventHandler_LoadError(t *testing.T) {
 	repo := &mocks.Repo{}
-	projector := &TestProjector{}
-	handler := NewEventHandler(projector, repo)
+	proj := &TestProjector{}
+	handler := projector.NewEventHandler(proj, repo)
 	handler.SetEntityFactory(func() eh.Entity {
 		return &mocks.SimpleModel{}
 	})
@@ -240,7 +241,7 @@ func TestEventHandler_LoadError(t *testing.T) {
 		mocks.AggregateType, id, 1)
 	loadErr := errors.New("load error")
 	repo.LoadErr = loadErr
-	expectedErr := Error{
+	expectedErr := projector.Error{
 		Err:       loadErr,
 		Namespace: eh.NamespaceFromContext(ctx),
 	}
@@ -249,10 +250,10 @@ func TestEventHandler_LoadError(t *testing.T) {
 	}
 }
 
-func TestEventHandler_SaveError(t *testing.T) {
+func Test_EventHandler_SaveError(t *testing.T) {
 	repo := &mocks.Repo{}
-	projector := &TestProjector{}
-	handler := NewEventHandler(projector, repo)
+	proj := &TestProjector{}
+	handler := projector.NewEventHandler(proj, repo)
 	handler.SetEntityFactory(func() eh.Entity {
 		return &mocks.SimpleModel{}
 	})
@@ -267,7 +268,7 @@ func TestEventHandler_SaveError(t *testing.T) {
 		mocks.AggregateType, id, 1)
 	saveErr := errors.New("save error")
 	repo.SaveErr = saveErr
-	expectedErr := Error{
+	expectedErr := projector.Error{
 		Err:       saveErr,
 		Namespace: eh.NamespaceFromContext(ctx),
 	}
@@ -276,10 +277,10 @@ func TestEventHandler_SaveError(t *testing.T) {
 	}
 }
 
-func TestEventHandler_ProjectError(t *testing.T) {
+func Test_EventHandler_ProjectError(t *testing.T) {
 	repo := &mocks.Repo{}
-	projector := &TestProjector{}
-	handler := NewEventHandler(projector, repo)
+	proj := &TestProjector{}
+	handler := projector.NewEventHandler(proj, repo)
 	handler.SetEntityFactory(func() eh.Entity {
 		return &mocks.SimpleModel{}
 	})
@@ -293,8 +294,8 @@ func TestEventHandler_ProjectError(t *testing.T) {
 	event := eh.NewEventForAggregate(mocks.EventType, eventData, timestamp,
 		mocks.AggregateType, id, 1)
 	projectErr := errors.New("save error")
-	projector.err = projectErr
-	expectedErr := Error{
+	proj.err = projectErr
+	expectedErr := projector.Error{
 		Err:       projectErr,
 		Namespace: eh.NamespaceFromContext(ctx),
 	}
@@ -304,7 +305,7 @@ func TestEventHandler_ProjectError(t *testing.T) {
 }
 
 const (
-	TestProjectorType Type = "TestProjector"
+	TestProjectorType projector.Type = "TestProjector"
 )
 
 type TestProjector struct {
@@ -315,7 +316,7 @@ type TestProjector struct {
 	err error
 }
 
-func (m *TestProjector) ProjectorType() Type {
+func (m *TestProjector) ProjectorType() projector.Type {
 	return TestProjectorType
 }
 

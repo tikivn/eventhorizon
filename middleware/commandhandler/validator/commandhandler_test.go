@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package validator
+package validator_test
 
 import (
 	"context"
@@ -22,12 +22,13 @@ import (
 
 	"github.com/google/uuid"
 	eh "github.com/looplab/eventhorizon"
+	"github.com/looplab/eventhorizon/middleware/commandhandler/validator"
 	"github.com/looplab/eventhorizon/mocks"
 )
 
-func TestCommandHandler_Immediate(t *testing.T) {
+func Test_CommandHandler_Immediate(t *testing.T) {
 	inner := &mocks.CommandHandler{}
-	m := NewMiddleware()
+	m := validator.NewMiddleware()
 	h := eh.UseCommandHandlerMiddleware(inner, m)
 	cmd := mocks.Command{
 		ID:      uuid.New().String(),
@@ -41,16 +42,16 @@ func TestCommandHandler_Immediate(t *testing.T) {
 	}
 }
 
-func TestCommandHandler_WithValidationError(t *testing.T) {
+func Test_CommandHandler_WithValidationError(t *testing.T) {
 	inner := &mocks.CommandHandler{}
-	m := NewMiddleware()
+	m := validator.NewMiddleware()
 	h := eh.UseCommandHandlerMiddleware(inner, m)
 	cmd := &mocks.Command{
 		ID:      uuid.New().String(),
 		Content: "content",
 	}
 	e := errors.New("a validation error")
-	c := CommandWithValidation(cmd, func() error { return e })
+	c := validator.CommandWithValidation(cmd, func() error { return e })
 	if err := h.HandleCommand(context.Background(), c); err != e {
 		t.Error("there should be an error:", e)
 	}
@@ -59,15 +60,15 @@ func TestCommandHandler_WithValidationError(t *testing.T) {
 	}
 }
 
-func TestCommandHandler_WithValidationNoError(t *testing.T) {
+func Test_CommandHandler_WithValidationNoError(t *testing.T) {
 	inner := &mocks.CommandHandler{}
-	m := NewMiddleware()
+	m := validator.NewMiddleware()
 	h := eh.UseCommandHandlerMiddleware(inner, m)
 	cmd := &mocks.Command{
 		ID:      uuid.New().String(),
 		Content: "content",
 	}
-	c := CommandWithValidation(cmd, func() error { return nil })
+	c := validator.CommandWithValidation(cmd, func() error { return nil })
 	if err := h.HandleCommand(context.Background(), c); err != nil {
 		t.Error("there should be no error:", err)
 	}

@@ -12,23 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package mocks
+package mocks_test
 
 import (
 	"context"
 	"testing"
 
+	"github.com/looplab/eventhorizon/mocks"
+
 	eh "github.com/looplab/eventhorizon"
 )
 
-func TestMockContext(t *testing.T) {
-	ctx := WithContextOne(context.Background(), "string")
-	if val, ok := ContextOne(ctx); !ok || val != "string" {
+func Test_MockContext(t *testing.T) {
+	ctx := mocks.WithContextOne(context.Background(), "string")
+	if val, ok := mocks.ContextOne(ctx); !ok || val != "string" {
 		t.Error("the context value should exist")
 	}
 	vals := eh.MarshalContext(ctx)
 	ctx = eh.UnmarshalContext(vals)
-	if val, ok := ContextOne(ctx); !ok || val != "string" {
+	if val, ok := mocks.ContextOne(ctx); !ok || val != "string" {
 		t.Error("the context marshalling should work")
 	}
 }

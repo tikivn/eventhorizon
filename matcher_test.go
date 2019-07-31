@@ -12,95 +12,97 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package eventhorizon
+package eventhorizon_test
 
 import (
 	"testing"
 	"time"
+
+	eh "github.com/looplab/eventhorizon"
 )
 
-func TestMatchAny(t *testing.T) {
-	m := MatchAny()
+func Test_MatchAny(t *testing.T) {
+	m := eh.MatchAny()
 
 	if !m(nil) {
 		t.Error("match any should always match")
 	}
 
-	e := NewEvent("test", nil, time.Now())
+	e := eh.NewEvent("test", nil, time.Now())
 	if !m(e) {
 		t.Error("match any should always match")
 	}
 }
-func TestMatchEvent(t *testing.T) {
-	et := EventType("test")
-	m := MatchEvent(et)
+func Test_MatchEvent(t *testing.T) {
+	et := eh.EventType("test")
+	m := eh.MatchEvent(et)
 
 	if m(nil) {
 		t.Error("match event should not match nil event")
 	}
 
-	e := NewEvent(et, nil, time.Now())
+	e := eh.NewEvent(et, nil, time.Now())
 	if !m(e) {
 		t.Error("match event should match the event")
 	}
 
-	e = NewEvent("other", nil, time.Now())
+	e = eh.NewEvent("other", nil, time.Now())
 	if m(e) {
 		t.Error("match event should not match the event")
 	}
 }
 
-func TestMatchAggregate(t *testing.T) {
-	at := AggregateType("test")
-	m := MatchAggregate(at)
+func Test_MatchAggregate(t *testing.T) {
+	at := eh.AggregateType("test")
+	m := eh.MatchAggregate(at)
 
 	if m(nil) {
 		t.Error("match aggregate should not match nil event")
 	}
 
-	e := NewEventForAggregate("test", nil, time.Now(), at, NilID, 0)
+	e := eh.NewEventForAggregate("test", nil, time.Now(), at, eh.NilID, 0)
 	if !m(e) {
 		t.Error("match aggregate should match the event")
 	}
 
-	e = NewEventForAggregate("test", nil, time.Now(), "other", NilID, 0)
+	e = eh.NewEventForAggregate("test", nil, time.Now(), "other", eh.NilID, 0)
 	if m(e) {
 		t.Error("match aggregate should not match the event")
 	}
 }
 
-func TestMatchAnyOf(t *testing.T) {
-	et1 := EventType("et1")
-	et2 := EventType("et2")
-	m := MatchAnyOf(
-		MatchEvent(et1),
-		MatchEvent(et2),
+func Test_MatchAnyOf(t *testing.T) {
+	et1 := eh.EventType("et1")
+	et2 := eh.EventType("et2")
+	m := eh.MatchAnyOf(
+		eh.MatchEvent(et1),
+		eh.MatchEvent(et2),
 	)
 
-	e := NewEvent(et1, nil, time.Now())
+	e := eh.NewEvent(et1, nil, time.Now())
 	if !m(e) {
 		t.Error("match any of should match the first event")
 	}
-	e = NewEvent(et2, nil, time.Now())
+	e = eh.NewEvent(et2, nil, time.Now())
 	if !m(e) {
 		t.Error("match any of should match the last event")
 	}
 }
 
-func TestMatchAnyEventOf(t *testing.T) {
-	et1 := EventType("test")
-	et2 := EventType("test")
-	m := MatchAnyEventOf(et1, et2)
+func Test_MatchAnyEventOf(t *testing.T) {
+	et1 := eh.EventType("test")
+	et2 := eh.EventType("test")
+	m := eh.MatchAnyEventOf(et1, et2)
 
 	if m(nil) {
 		t.Error("match any event of should not match nil event")
 	}
 
-	e1 := NewEvent(et1, nil, time.Now())
+	e1 := eh.NewEvent(et1, nil, time.Now())
 	if !m(e1) {
 		t.Error("match any event of should match the first event")
 	}
-	e2 := NewEvent(et2, nil, time.Now())
+	e2 := eh.NewEvent(et2, nil, time.Now())
 	if !m(e2) {
 		t.Error("match any event of should match the second event")
 	}

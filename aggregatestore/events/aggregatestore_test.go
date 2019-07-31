@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package events
+package events_test
 
 import (
 	"context"
@@ -23,10 +23,11 @@ import (
 
 	"github.com/google/uuid"
 	eh "github.com/looplab/eventhorizon"
+	"github.com/looplab/eventhorizon/aggregatestore/events"
 	"github.com/looplab/eventhorizon/mocks"
 )
 
-func TestNewAggregateStore(t *testing.T) {
+func Test_NewAggregateStore(t *testing.T) {
 	eventStore := &mocks.EventStore{
 		Events: make([]eh.Event, 0),
 	}
@@ -34,23 +35,23 @@ func TestNewAggregateStore(t *testing.T) {
 		Events: make([]eh.Event, 0),
 	}
 
-	store, err := NewAggregateStore(nil, bus)
-	if err != ErrInvalidEventStore {
+	store, err := events.NewAggregateStore(nil, bus)
+	if err != events.ErrInvalidEventStore {
 		t.Error("there should be a ErrInvalidEventStore error:", err)
 	}
 	if store != nil {
 		t.Error("there should be no aggregate store:", store)
 	}
 
-	store, err = NewAggregateStore(eventStore, nil)
-	if err != ErrInvalidEventBus {
+	store, err = events.NewAggregateStore(eventStore, nil)
+	if err != events.ErrInvalidEventBus {
 		t.Error("there should be a ErrInvalidEventBus error:", err)
 	}
 	if store != nil {
 		t.Error("there should be no aggregate store:", store)
 	}
 
-	store, err = NewAggregateStore(eventStore, bus)
+	store, err = events.NewAggregateStore(eventStore, bus)
 	if err != nil {
 		t.Error("there should be no error:", err)
 	}
@@ -59,7 +60,7 @@ func TestNewAggregateStore(t *testing.T) {
 	}
 }
 
-func TestAggregateStore_LoadNoEvents(t *testing.T) {
+func Test_AggregateStore_LoadNoEvents(t *testing.T) {
 	store, _, _ := createStore(t)
 
 	ctx := context.Background()
@@ -69,7 +70,7 @@ func TestAggregateStore_LoadNoEvents(t *testing.T) {
 	if err != nil {
 		t.Fatal("there should be no error:", err)
 	}
-	a, ok := agg.(Aggregate)
+	a, ok := agg.(events.Aggregate)
 	if !ok {
 		t.Fatal("the aggregate shoud be of correct type")
 	}
@@ -81,7 +82,7 @@ func TestAggregateStore_LoadNoEvents(t *testing.T) {
 	}
 }
 
-func TestAggregateStore_LoadEvents(t *testing.T) {
+func Test_AggregateStore_LoadEvents(t *testing.T) {
 	store, eventStore, _ := createStore(t)
 
 	ctx := context.Background()
@@ -99,7 +100,7 @@ func TestAggregateStore_LoadEvents(t *testing.T) {
 	if err != nil {
 		t.Fatal("there should be no error:", err)
 	}
-	a, ok := loaded.(Aggregate)
+	a, ok := loaded.(events.Aggregate)
 	if !ok {
 		t.Fatal("the aggregate shoud be of correct type")
 	}
@@ -122,7 +123,7 @@ func TestAggregateStore_LoadEvents(t *testing.T) {
 	eventStore.Err = nil
 }
 
-func TestAggregateStore_LoadEvents_MismatchedEventType(t *testing.T) {
+func Test_AggregateStore_LoadEvents_MismatchedEventType(t *testing.T) {
 	store, eventStore, _ := createStore(t)
 
 	ctx := context.Background()
@@ -143,7 +144,7 @@ func TestAggregateStore_LoadEvents_MismatchedEventType(t *testing.T) {
 	}
 
 	loaded, err := store.Load(ctx, TestAggregateType, otherAggregateID)
-	if err != ErrMismatchedEventType {
+	if err != events.ErrMismatchedEventType {
 		t.Fatal("there should be a ErrMismatchedEventType error:", err)
 	}
 	if loaded != nil {
@@ -151,7 +152,7 @@ func TestAggregateStore_LoadEvents_MismatchedEventType(t *testing.T) {
 	}
 }
 
-func TestAggregateStore_SaveEvents(t *testing.T) {
+func Test_AggregateStore_SaveEvents(t *testing.T) {
 	store, eventStore, bus := createStore(t)
 
 	ctx := context.Background()
@@ -204,7 +205,7 @@ func TestAggregateStore_SaveEvents(t *testing.T) {
 	event1 = agg.StoreEvent(mocks.EventType, &mocks.EventData{Content: "event"}, timestamp)
 	agg.err = errors.New("error")
 	err = store.Save(ctx, agg)
-	if _, ok := err.(ApplyEventError); !ok {
+	if _, ok := err.(events.ApplyEventError); !ok {
 		t.Error("there should be an error of type ApplyEventError:", err)
 	}
 	agg.err = nil
@@ -218,7 +219,7 @@ func TestAggregateStore_SaveEvents(t *testing.T) {
 	}
 }
 
-func TestAggregateStore_AggregateNotRegistered(t *testing.T) {
+func Test_AggregateStore_AggregateNotRegistered(t *testing.T) {
 	store, _, _ := createStore(t)
 
 	ctx := context.Background()
@@ -233,14 +234,14 @@ func TestAggregateStore_AggregateNotRegistered(t *testing.T) {
 	}
 }
 
-func createStore(t *testing.T) (*AggregateStore, *mocks.EventStore, *mocks.EventBus) {
+func createStore(t *testing.T) (*events.AggregateStore, *mocks.EventStore, *mocks.EventBus) {
 	eventStore := &mocks.EventStore{
 		Events: make([]eh.Event, 0),
 	}
 	bus := &mocks.EventBus{
 		Events: make([]eh.Event, 0),
 	}
-	store, err := NewAggregateStore(eventStore, bus)
+	store, err := events.NewAggregateStore(eventStore, bus)
 	if err != nil {
 		t.Fatal("there should be no error:", err)
 	}
@@ -259,15 +260,15 @@ func init() {
 const TestAggregateOtherType eh.AggregateType = "TestAggregateOther"
 
 type TestAggregateOther struct {
-	*AggregateBase
+	*events.AggregateBase
 	err error
 }
 
-var _ = Aggregate(&TestAggregateOther{})
+var _ = events.Aggregate(&TestAggregateOther{})
 
 func NewTestAggregateOther(id eh.ID) *TestAggregateOther {
 	return &TestAggregateOther{
-		AggregateBase: NewAggregateBase(TestAggregateOtherType, id),
+		AggregateBase: events.NewAggregateBase(TestAggregateOtherType, id),
 	}
 }
 

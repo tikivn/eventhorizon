@@ -12,28 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package eventhorizon
+package eventhorizon_test
 
 import (
 	"context"
 	"encoding/json"
 	"testing"
+
+	eh "github.com/looplab/eventhorizon"
 )
 
-func TestContextNamespace(t *testing.T) {
+func Test_ContextNamespace(t *testing.T) {
 	ctx := context.Background()
 
-	if ns := NamespaceFromContext(ctx); ns != DefaultNamespace {
+	if ns := eh.NamespaceFromContext(ctx); ns != eh.DefaultNamespace {
 		t.Error("the namespace should be the default:", ns)
 	}
 
-	ctx = NewContextWithNamespace(ctx, "ns")
-	if ns := NamespaceFromContext(ctx); ns != "ns" {
+	ctx = eh.NewContextWithNamespace(ctx, "ns")
+	if ns := eh.NamespaceFromContext(ctx); ns != "ns" {
 		t.Error("the namespace should be correct:", ns)
 	}
 
-	vals := MarshalContext(ctx)
-	if ns, ok := vals[namespaceKeyStr].(string); !ok || ns != "ns" {
+	vals := eh.MarshalContext(ctx)
+	if ns, ok := vals[eh.NamespaceKeyStr].(string); !ok || ns != "ns" {
 		t.Error("the marshaled namespace shoud be correct:", ns)
 	}
 	b, err := json.Marshal(vals)
@@ -47,26 +49,26 @@ func TestContextNamespace(t *testing.T) {
 	if err := json.Unmarshal(b, &vals); err != nil {
 		t.Error("could not unmarshal JSON:", err)
 	}
-	ctx = UnmarshalContext(vals)
-	if ns := NamespaceFromContext(ctx); ns != "ns" {
+	ctx = eh.UnmarshalContext(vals)
+	if ns := eh.NamespaceFromContext(ctx); ns != "ns" {
 		t.Error("the namespace should be correct:", ns)
 	}
 }
 
-func TestContextMinVersion(t *testing.T) {
+func Test_ContextMinVersion(t *testing.T) {
 	ctx := context.Background()
 
-	if v, ok := MinVersionFromContext(ctx); ok {
+	if v, ok := eh.MinVersionFromContext(ctx); ok {
 		t.Error("there should be no min version:", v)
 	}
 
-	ctx = NewContextWithMinVersion(ctx, 8)
-	if v, ok := MinVersionFromContext(ctx); !ok && v != 8 {
+	ctx = eh.NewContextWithMinVersion(ctx, 8)
+	if v, ok := eh.MinVersionFromContext(ctx); !ok && v != 8 {
 		t.Error("the min version should be correct:", v)
 	}
 
-	vals := MarshalContext(ctx)
-	if v, ok := vals[minVersionKeyStr].(int); !ok || v != 8 {
+	vals := eh.MarshalContext(ctx)
+	if v, ok := vals[eh.MinVersionKeyStr].(int); !ok || v != 8 {
 		t.Error("the marshaled min version shoud be correct:", v)
 	}
 	b, err := json.Marshal(vals)
@@ -80,59 +82,59 @@ func TestContextMinVersion(t *testing.T) {
 	if err := json.Unmarshal(b, &vals); err != nil {
 		t.Error("could not unmarshal JSON:", err)
 	}
-	ctx = UnmarshalContext(vals)
-	if v, ok := MinVersionFromContext(ctx); !ok || v != 8 {
+	ctx = eh.UnmarshalContext(vals)
+	if v, ok := eh.MinVersionFromContext(ctx); !ok || v != 8 {
 		t.Error("the min version should be correct:", v)
 	}
 }
 
-func TestContextMarshaler(t *testing.T) {
-	if len(contextMarshalFuncs) != 2 {
+func Test_ContextMarshaler(t *testing.T) {
+	if len(eh.ContextMarshalers()) != 2 {
 		t.Error("there should be two context marshalers")
 	}
-	RegisterContextMarshaler(func(ctx context.Context, vals map[string]interface{}) {
+	eh.RegisterContextMarshaler(func(ctx context.Context, vals map[string]interface{}) {
 		if val, ok := ContextTestOne(ctx); ok {
 			vals[contextTestKeyOneStr] = val
 		}
 	})
-	if len(contextMarshalFuncs) != 3 {
+	if len(eh.ContextMarshalers()) != 3 {
 		t.Error("there should be three context marshaler")
 	}
 
 	ctx := context.Background()
 
-	vals := MarshalContext(ctx)
+	vals := eh.MarshalContext(ctx)
 	if _, ok := vals[contextTestKeyOneStr]; ok {
 		t.Error("the marshaled values should be empty:", vals)
 	}
 	ctx = WithContextTestOne(ctx, "testval")
-	vals = MarshalContext(ctx)
+	vals = eh.MarshalContext(ctx)
 	if val, ok := vals[contextTestKeyOneStr]; !ok || val != "testval" {
 		t.Error("the marshaled value should be correct:", val)
 	}
 }
 
-func TestContextUnmarshaler(t *testing.T) {
-	if len(contextUnmarshalFuncs) != 2 {
+func Test_ContextUnmarshaler(t *testing.T) {
+	if len(eh.ContextUnmarshalers()) != 2 {
 		t.Error("there should be two context marshalers")
 	}
-	RegisterContextUnmarshaler(func(ctx context.Context, vals map[string]interface{}) context.Context {
+	eh.RegisterContextUnmarshaler(func(ctx context.Context, vals map[string]interface{}) context.Context {
 		if val, ok := vals[contextTestKeyOneStr].(string); ok {
 			return WithContextTestOne(ctx, val)
 		}
 		return ctx
 	})
-	if len(contextUnmarshalFuncs) != 3 {
+	if len(eh.ContextUnmarshalers()) != 3 {
 		t.Error("there should be three context unmarshalers")
 	}
 
 	vals := map[string]interface{}{}
-	ctx := UnmarshalContext(vals)
+	ctx := eh.UnmarshalContext(vals)
 	if _, ok := ContextTestOne(ctx); ok {
 		t.Error("the unmarshaled context should be empty:", ctx)
 	}
 	vals[contextTestKeyOneStr] = "testval"
-	ctx = UnmarshalContext(vals)
+	ctx = eh.UnmarshalContext(vals)
 	if val, ok := ContextTestOne(ctx); !ok || val != "testval" {
 		t.Error("the unmarshaled context should be correct:", val)
 	}

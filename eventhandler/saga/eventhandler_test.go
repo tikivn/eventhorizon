@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package saga
+package saga_test
 
 import (
 	"context"
@@ -22,15 +22,16 @@ import (
 
 	"github.com/google/uuid"
 	eh "github.com/looplab/eventhorizon"
+	"github.com/looplab/eventhorizon/eventhandler/saga"
 	"github.com/looplab/eventhorizon/mocks"
 )
 
-func TestEventHandler(t *testing.T) {
+func Test_EventHandler(t *testing.T) {
 	commandHandler := &mocks.CommandHandler{
 		Commands: []eh.Command{},
 	}
-	saga := &TestSaga{}
-	handler := NewEventHandler(saga, commandHandler)
+	sg := &TestSaga{}
+	handler := saga.NewEventHandler(sg, commandHandler)
 
 	ctx := context.Background()
 
@@ -39,18 +40,18 @@ func TestEventHandler(t *testing.T) {
 	timestamp := time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC)
 	event := eh.NewEventForAggregate(mocks.EventType, eventData, timestamp,
 		mocks.AggregateType, id, 1)
-	saga.commands = []eh.Command{&mocks.Command{ID: uuid.New().String(), Content: "content"}}
+	sg.commands = []eh.Command{&mocks.Command{ID: uuid.New().String(), Content: "content"}}
 	handler.HandleEvent(ctx, event)
-	if saga.event != event {
-		t.Error("the handled event should be correct:", saga.event)
+	if sg.event != event {
+		t.Error("the handled event should be correct:", sg.event)
 	}
-	if !reflect.DeepEqual(commandHandler.Commands, saga.commands) {
+	if !reflect.DeepEqual(commandHandler.Commands, sg.commands) {
 		t.Error("the produced commands should be correct:", commandHandler.Commands)
 	}
 }
 
 const (
-	TestSagaType Type = "TestSaga"
+	TestSagaType saga.Type = "TestSaga"
 )
 
 type TestSaga struct {
@@ -59,7 +60,7 @@ type TestSaga struct {
 	commands []eh.Command
 }
 
-func (m *TestSaga) SagaType() Type {
+func (m *TestSaga) SagaType() saga.Type {
 	return TestSagaType
 }
 

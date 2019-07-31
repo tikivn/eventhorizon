@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package aggregate
+package aggregate_test
 
 import (
 	"context"
@@ -22,14 +22,15 @@ import (
 
 	"github.com/google/uuid"
 	eh "github.com/looplab/eventhorizon"
+	"github.com/looplab/eventhorizon/commandhandler/aggregate"
 	"github.com/looplab/eventhorizon/mocks"
 )
 
-func TestNewCommandHandler(t *testing.T) {
+func Test_NewCommandHandler(t *testing.T) {
 	store := &mocks.AggregateStore{
 		Aggregates: make(map[eh.ID]eh.Aggregate),
 	}
-	h, err := NewCommandHandler(mocks.AggregateType, store)
+	h, err := aggregate.NewCommandHandler(mocks.AggregateType, store)
 	if err != nil {
 		t.Error("there should be no error:", err)
 	}
@@ -37,8 +38,8 @@ func TestNewCommandHandler(t *testing.T) {
 		t.Error("there should be a handler")
 	}
 
-	h, err = NewCommandHandler(mocks.AggregateType, nil)
-	if err != ErrNilAggregateStore {
+	h, err = aggregate.NewCommandHandler(mocks.AggregateType, nil)
+	if err != aggregate.ErrNilAggregateStore {
 		t.Error("there should be a ErrNilAggregateStore error:", err)
 	}
 	if h != nil {
@@ -46,7 +47,7 @@ func TestNewCommandHandler(t *testing.T) {
 	}
 }
 
-func TestCommandHandler(t *testing.T) {
+func Test_CommandHandler(t *testing.T) {
 	a, h, _ := createAggregateAndHandler(t)
 
 	ctx := context.WithValue(context.Background(), "testkey", "testval")
@@ -67,11 +68,11 @@ func TestCommandHandler(t *testing.T) {
 	}
 }
 
-func TestCommandHandler_AggregateNotFound(t *testing.T) {
+func Test_CommandHandler_AggregateNotFound(t *testing.T) {
 	store := &mocks.AggregateStore{
 		Aggregates: map[eh.ID]eh.Aggregate{},
 	}
-	h, err := NewCommandHandler(mocks.AggregateType, store)
+	h, err := aggregate.NewCommandHandler(mocks.AggregateType, store)
 	if err != nil {
 		t.Fatal("there should be no error:", err)
 	}
@@ -89,7 +90,7 @@ func TestCommandHandler_AggregateNotFound(t *testing.T) {
 	}
 }
 
-func TestCommandHandler_ErrorInHandler(t *testing.T) {
+func Test_CommandHandler_ErrorInHandler(t *testing.T) {
 	a, h, _ := createAggregateAndHandler(t)
 
 	a.Err = errors.New("command error")
@@ -106,7 +107,7 @@ func TestCommandHandler_ErrorInHandler(t *testing.T) {
 	}
 }
 
-func TestCommandHandler_ErrorWhenSaving(t *testing.T) {
+func Test_CommandHandler_ErrorWhenSaving(t *testing.T) {
 	a, h, store := createAggregateAndHandler(t)
 
 	store.Err = errors.New("save error")
@@ -120,7 +121,7 @@ func TestCommandHandler_ErrorWhenSaving(t *testing.T) {
 	}
 }
 
-func TestCommandHandler_NoHandlers(t *testing.T) {
+func Test_CommandHandler_NoHandlers(t *testing.T) {
 	_, h, _ := createAggregateAndHandler(t)
 
 	cmd := &mocks.Command{
@@ -140,7 +141,7 @@ func BenchmarkCommandHandler(b *testing.B) {
 			a.EntityID(): a,
 		},
 	}
-	h, err := NewCommandHandler(mocks.AggregateType, store)
+	h, err := aggregate.NewCommandHandler(mocks.AggregateType, store)
 	if err != nil {
 		b.Fatal("there should be no error:", err)
 	}
@@ -159,14 +160,14 @@ func BenchmarkCommandHandler(b *testing.B) {
 	}
 }
 
-func createAggregateAndHandler(t *testing.T) (*mocks.Aggregate, *CommandHandler, *mocks.AggregateStore) {
+func createAggregateAndHandler(t *testing.T) (*mocks.Aggregate, *aggregate.CommandHandler, *mocks.AggregateStore) {
 	a := mocks.NewAggregate(uuid.New().String())
 	store := &mocks.AggregateStore{
 		Aggregates: map[eh.ID]eh.Aggregate{
 			a.EntityID(): a,
 		},
 	}
-	h, err := NewCommandHandler(mocks.AggregateType, store)
+	h, err := aggregate.NewCommandHandler(mocks.AggregateType, store)
 	if err != nil {
 		t.Fatal("there should be no error:", err)
 	}

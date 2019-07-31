@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package eventhorizon
+package eventhorizon_test
 
 import (
 	"context"
@@ -20,45 +20,47 @@ import (
 	"reflect"
 	"testing"
 	"time"
+
+	eh "github.com/looplab/eventhorizon"
 )
 
-func TestEventHandlerFunc(t *testing.T) {
-	events := []Event{}
-	h := EventHandlerFunc(func(ctx context.Context, e Event) error {
+func Test_EventHandlerFunc(t *testing.T) {
+	events := []eh.Event{}
+	h := eh.EventHandlerFunc(func(ctx context.Context, e eh.Event) error {
 		events = append(events, e)
 		return nil
 	})
-	if h.HandlerType() != EventHandlerType(fmt.Sprintf("handler-func-%v", h)) {
+	if h.HandlerType() != eh.EventHandlerType(fmt.Sprintf("handler-func-%v", h)) {
 		t.Error("the handler type should be correct:", h.HandlerType())
 	}
 
-	e := NewEvent("test", nil, time.Now())
+	e := eh.NewEvent("test", nil, time.Now())
 	h.HandleEvent(context.Background(), e)
-	if !reflect.DeepEqual(events, []Event{e}) {
+	if !reflect.DeepEqual(events, []eh.Event{e}) {
 		t.Error("the events should be correct")
 		t.Log(events)
 	}
 }
 
-func TestEventHandlerMiddleware(t *testing.T) {
+func Test_EventHandlerMiddleware(t *testing.T) {
 	order := []string{}
-	middleware := func(s string) EventHandlerMiddleware {
-		return EventHandlerMiddleware(func(h EventHandler) EventHandler {
-			return EventHandlerFunc(func(ctx context.Context, e Event) error {
+	middleware := func(s string) eh.EventHandlerMiddleware {
+		return eh.EventHandlerMiddleware(func(h eh.EventHandler) eh.EventHandler {
+			return eh.EventHandlerFunc(func(ctx context.Context, e eh.Event) error {
 				order = append(order, s)
 				return h.HandleEvent(ctx, e)
 			})
 		})
 	}
-	handler := func(ctx context.Context, e Event) error {
+	handler := func(ctx context.Context, e eh.Event) error {
 		return nil
 	}
-	h := UseEventHandlerMiddleware(EventHandlerFunc(handler),
+	h := eh.UseEventHandlerMiddleware(eh.EventHandlerFunc(handler),
 		middleware("first"),
 		middleware("second"),
 		middleware("third"),
 	)
-	h.HandleEvent(context.Background(), NewEvent("test", nil, time.Now()))
+	h.HandleEvent(context.Background(), eh.NewEvent("test", nil, time.Now()))
 	if !reflect.DeepEqual(order, []string{"first", "second", "third"}) {
 		t.Error("the order of middleware should be correct")
 		t.Log(order)
