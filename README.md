@@ -1,5 +1,5 @@
-[![Build Status](https://travis-ci.com/looplab/eventhorizon.svg?branch=master)](https://travis-ci.com/looplab/eventhorizon)
-[![Coverage Status](https://img.shields.io/coveralls/looplab/eventhorizon.svg)](https://coveralls.io/r/looplab/eventhorizon)
+[![Build Status](https://travis-ci.org/go-friday/eventhorizon.svg?branch=master)](https://travis-ci.org/go-friday/eventhorizon)
+[![Coverage Status](https://coveralls.io/repos/github/go-friday/eventhorizon/badge.svg?branch=master)](https://coveralls.io/github/go-friday/eventhorizon?branch=master)
 [![GoDoc](https://godoc.org/github.com/looplab/eventhorizon?status.svg)](https://godoc.org/github.com/looplab/eventhorizon)
 [![Go Report Card](https://goreportcard.com/badge/looplab/eventhorizon)](https://goreportcard.com/report/looplab/eventhorizon)
 
