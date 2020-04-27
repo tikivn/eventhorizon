@@ -51,6 +51,8 @@ type Error struct {
 	BaseErr error
 	// Namespace is the namespace for the error.
 	Namespace string
+	// Event
+	Event eh.Event
 }
 
 // Error implements the Error method of the errors.Error interface.
@@ -59,7 +61,7 @@ func (e Error) Error() string {
 	if e.BaseErr != nil {
 		errStr += ": " + e.BaseErr.Error()
 	}
-	return "projector: " + errStr + " (" + e.Namespace + ")"
+	return "projector: aggregate " + e.Event.AggregateID().String() + " type " + string(e.Event.AggregateType()) + " event " + e.Event.String() + errStr + " (" + e.Namespace + ")"
 }
 
 // ErrModelNotSet is when a model factory is not set on the EventHandler.
@@ -91,6 +93,7 @@ func (h *EventHandler) HandleEvent(ctx context.Context, event eh.Event) error {
 			return Error{
 				Err:       ErrModelNotSet,
 				Namespace: eh.NamespaceFromContext(ctx),
+				Event:     event,
 			}
 		}
 		entity = h.factoryFn()
@@ -98,6 +101,7 @@ func (h *EventHandler) HandleEvent(ctx context.Context, event eh.Event) error {
 		return Error{
 			Err:       err,
 			Namespace: eh.NamespaceFromContext(ctx),
+			Event:     event,
 		}
 	}
 
@@ -113,6 +117,7 @@ func (h *EventHandler) HandleEvent(ctx context.Context, event eh.Event) error {
 			return Error{
 				Err:       eh.ErrIncorrectEntityVersion,
 				Namespace: eh.NamespaceFromContext(ctx),
+				Event:     event,
 			}
 		}
 	}
@@ -123,6 +128,7 @@ func (h *EventHandler) HandleEvent(ctx context.Context, event eh.Event) error {
 		return Error{
 			Err:       err,
 			Namespace: eh.NamespaceFromContext(ctx),
+			Event:     event,
 		}
 	}
 
@@ -132,6 +138,7 @@ func (h *EventHandler) HandleEvent(ctx context.Context, event eh.Event) error {
 			return Error{
 				Err:       eh.ErrIncorrectEntityVersion,
 				Namespace: eh.NamespaceFromContext(ctx),
+				Event:     event,
 			}
 		}
 	}
@@ -142,6 +149,7 @@ func (h *EventHandler) HandleEvent(ctx context.Context, event eh.Event) error {
 			return Error{
 				Err:       err,
 				Namespace: eh.NamespaceFromContext(ctx),
+				Event:     event,
 			}
 		}
 	} else {
@@ -149,6 +157,7 @@ func (h *EventHandler) HandleEvent(ctx context.Context, event eh.Event) error {
 			return Error{
 				Err:       err,
 				Namespace: eh.NamespaceFromContext(ctx),
+				Event:     event,
 			}
 		}
 	}
