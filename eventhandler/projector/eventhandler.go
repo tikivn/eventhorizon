@@ -57,11 +57,19 @@ type Error struct {
 
 // Error implements the Error method of the errors.Error interface.
 func (e Error) Error() string {
-	errStr := e.Err.Error()
+	errStr := ""
+	if e.Err != nil {
+		errStr += e.Err.Error()
+	}
+
 	if e.BaseErr != nil {
 		errStr += ": " + e.BaseErr.Error()
 	}
-	return "projector: aggregate " + e.Event.AggregateID().String() + " type " + string(e.Event.AggregateType()) + " event " + e.Event.String() + errStr + " (" + e.Namespace + ")"
+
+	if e.Event != nil {
+		return "projector: aggregate " + e.Event.AggregateID().String() + ", type " + string(e.Event.AggregateType()) + ", event " + e.Event.String() + errStr + " (" + e.Namespace + ")"
+	}
+	return "projector: " + errStr + " (" + e.Namespace + ")"
 }
 
 // ErrModelNotSet is when a model factory is not set on the EventHandler.

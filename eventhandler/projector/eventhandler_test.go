@@ -328,3 +328,113 @@ func (m *TestProjector) Project(ctx context.Context, event eh.Event, entity eh.E
 	m.entity = entity
 	return m.newEntity, nil
 }
+
+type EventTest struct{}
+
+// EventType returns the type of the event.
+func (e EventTest) EventType() eh.EventType {
+	return ""
+}
+
+// The data attached to the event.
+func (e EventTest) Data() eh.EventData {
+	return nil
+}
+
+// Timestamp of when the event was created.
+func (e EventTest) Timestamp() time.Time {
+	return time.Now()
+}
+
+// AggregateType returns the type of the aggregate that the event can be
+// applied to.
+func (e EventTest) AggregateType() eh.AggregateType {
+	return "nil"
+}
+
+// AggregateID returns the ID of the aggregate that the event should be
+// applied to.
+func (e EventTest) AggregateID() uuid.UUID {
+	return uuid.Nil
+}
+
+// Version of the aggregate for this event (after it has been applied).
+func (e EventTest) Version() int {
+	return 0
+}
+
+// A string representation of the event.
+func (e EventTest) String() string {
+	return ""
+}
+
+func TestError_Error(t *testing.T) {
+	type fields struct {
+		Err       error
+		BaseErr   error
+		Namespace string
+		Event     eh.Event
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   string
+	}{
+		{
+			name: "Error nil",
+			fields: fields{
+				Err:     nil,
+				BaseErr: errors.New("base error"),
+			},
+			want: "projector: : base error ()",
+		},
+		{
+			name: "Base error nil",
+			fields: fields{
+				Err:     errors.New("error"),
+				BaseErr: nil,
+			},
+			want: "projector: error ()",
+		},
+		{
+			name: "Event nil",
+			fields: fields{
+				Err:     errors.New("error"),
+				BaseErr: nil,
+				Event:   nil,
+			},
+			want: "projector: error ()",
+		},
+		{
+			name: "All nil",
+			fields: fields{
+				Err:     nil,
+				BaseErr: nil,
+				Event:   nil,
+			},
+			want: "projector:  ()",
+		},
+		{
+			name: "EventTest return null",
+			fields: fields{
+				Err:     nil,
+				BaseErr: nil,
+				Event:   EventTest{},
+			},
+			want: "projector: aggregate 00000000-0000-0000-0000-000000000000, type nil, event  ()",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			e := Error{
+				Err:       tt.fields.Err,
+				BaseErr:   tt.fields.BaseErr,
+				Namespace: tt.fields.Namespace,
+				Event:     tt.fields.Event,
+			}
+			if got := e.Error(); got != tt.want {
+				t.Errorf("Error.Error() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
