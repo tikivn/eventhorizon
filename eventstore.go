@@ -31,6 +31,11 @@ type EventStoreError struct {
 	Namespace string
 }
 
+// Cause implement errors.Cause(), return the original error to handler
+func (e EventStoreError) Cause() error {
+	return e.Err
+}
+
 // Error implements the Error method of the errors.Error interface.
 func (e EventStoreError) Error() string {
 	errStr := e.Err.Error()
@@ -49,13 +54,16 @@ var ErrInvalidEvent = errors.New("invalid event")
 // ErrIncorrectEventVersion is when an event is for an other version of the aggregate.
 var ErrIncorrectEventVersion = errors.New("mismatching event version")
 
+// ErrConcurrentException is when an event has old version because other event was stored before it
+var ErrConcurrentException = errors.New("other event was stored before the event")
+
 // EventStore is an interface for an event sourcing event store.
 type EventStore interface {
 	// Save appends all events in the event stream to the store.
 	Save(ctx context.Context, events []Event, originalVersion int) error
 
-	// Load loads all events for the aggregate id from the store.
-	Load(context.Context, uuid.UUID) ([]Event, error)
+	// Load loads all events for the aggregate id & type from the store.
+	Load(context.Context, uuid.UUID, AggregateType) ([]Event, error)
 }
 
 // EventStoreMaintainer is an interface for a maintainer of an EventStore.

@@ -297,7 +297,7 @@ func (m *EventStore) Save(ctx context.Context, events []eh.Event, originalVersio
 }
 
 // Load implements the Load method of the eventhorizon.EventStore interface.
-func (m *EventStore) Load(ctx context.Context, id uuid.UUID) ([]eh.Event, error) {
+func (m *EventStore) Load(ctx context.Context, id uuid.UUID, _ eh.AggregateType) ([]eh.Event, error) {
 	if m.Err != nil {
 		return nil, m.Err
 	}
@@ -372,15 +372,6 @@ func (r *Repo) Find(ctx context.Context, id uuid.UUID) (eh.Entity, error) {
 		return nil, r.LoadErr
 	}
 	return r.Entity, nil
-}
-
-// FindAll implements the FindAll method of the eventhorizon.ReadRepo interface.
-func (r *Repo) FindAll(ctx context.Context) ([]eh.Entity, error) {
-	r.FindAllCalled = true
-	if r.LoadErr != nil {
-		return nil, r.LoadErr
-	}
-	return r.Entities, nil
 }
 
 // Save implements the Save method of the eventhorizon.ReadRepo interface.

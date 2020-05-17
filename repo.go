@@ -57,9 +57,6 @@ type ReadRepo interface {
 
 	// Find returns an entity for an ID.
 	Find(context.Context, uuid.UUID) (Entity, error)
-
-	// FindAll returns all entities in the repository.
-	FindAll(context.Context) ([]Entity, error)
 }
 
 // WriteRepo is a write repository for entities.
