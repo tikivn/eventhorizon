@@ -179,5 +179,5 @@ func CreateEventData(eventType EventType) (EventData, error) {
 	if factory, ok := eventDataFactories[eventType]; ok {
 		return factory(), nil
 	}
-	return nil, ErrEventDataNotRegistered
+	return nil, fmt.Errorf("eventhorizon: event data not registered, event type %q", eventType)
 }
