@@ -22,8 +22,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	eh "github.com/looplab/eventhorizon"
-	"github.com/looplab/eventhorizon/mocks"
+	eh "github.com/tikivn/eventhorizon"
+	"github.com/tikivn/eventhorizon/mocks"
 )
 
 func TestNewAggregateStore(t *testing.T) {

@@ -49,11 +49,16 @@ type Aggregate interface {
 
 // AggregateStore is responsible for loading and saving aggregates.
 type AggregateStore interface {
-	// Load loads the most recent version of an aggregate with a type and id.
-	Load(context.Context, AggregateType, uuid.UUID) (Aggregate, error)
+	AggregateQuerier
 
 	// Save saves the uncommittend events for an aggregate.
 	Save(context.Context, Aggregate) error
+}
+
+//AggregateQuerier is responsible for loading aggregates
+type AggregateQuerier interface {
+	// Load loads the most recent version of an aggregate with a type and id.
+	Load(context.Context, AggregateType, uuid.UUID) (Aggregate, error)
 }
 
 var aggregates = make(map[AggregateType]func(uuid.UUID) Aggregate)

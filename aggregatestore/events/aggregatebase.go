@@ -18,7 +18,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	eh "github.com/looplab/eventhorizon"
+	eh "github.com/tikivn/eventhorizon"
 )
 
 // AggregateBase is a event sourced aggregate base to embed in a domain aggregate.

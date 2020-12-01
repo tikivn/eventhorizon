@@ -21,7 +21,7 @@ import (
 	"github.com/globalsign/mgo"
 	"github.com/google/uuid"
 
-	eh "github.com/looplab/eventhorizon"
+	eh "github.com/tikivn/eventhorizon"
 )
 
 // ErrCouldNotDialDB is when the database could not be dialed.

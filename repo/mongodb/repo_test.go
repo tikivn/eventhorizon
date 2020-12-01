@@ -25,9 +25,9 @@ import (
 	"github.com/globalsign/mgo/bson"
 	"github.com/google/uuid"
 
-	eh "github.com/looplab/eventhorizon"
-	"github.com/looplab/eventhorizon/mocks"
-	"github.com/looplab/eventhorizon/repo"
+	eh "github.com/tikivn/eventhorizon"
+	"github.com/tikivn/eventhorizon/mocks"
+	"github.com/tikivn/eventhorizon/repo"
 )
 
 func TestReadRepo(t *testing.T) {
