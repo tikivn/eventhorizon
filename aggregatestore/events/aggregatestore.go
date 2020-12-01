@@ -19,7 +19,7 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
-	eh "github.com/looplab/eventhorizon"
+	eh "github.com/tikivn/eventhorizon"
 )
 
 // ErrInvalidEventStore is when a dispatcher is created with a nil event store.
