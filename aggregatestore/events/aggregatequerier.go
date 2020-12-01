@@ -11,6 +11,18 @@ type AggregateQuerier struct {
 	store eh.EventStore
 }
 
+// NewAggregateQuerier creates a repository that will use an event store
+func NewAggregateQuerier(store eh.EventStore) (*AggregateQuerier, error) {
+	if store == nil {
+		return nil, ErrInvalidEventStore
+	}
+
+	d := &AggregateQuerier{
+		store: store,
+	}
+	return d, nil
+}
+
 // Load implements the Load method of the eventhorizon.AggregateQuerier interface.
 // It loads an aggregate from the event store by creating a new aggregate of the
 // type with the ID and then applies all events to it, thus making it the most
